@@ -33,8 +33,49 @@ var exchangeMapping = {
         "Sent/Received from":      function(pSource) { return ""; },
         "Sent to":                 function(pSource) { if(pSource['Type'] == "Sub Account Transfer") return pSource["Account"]; },
         "Notes":                   function(pSource) { return ""; }
+    },
+
+    "Binance": {
+        "_KnownCSVColumns": function(pSource) { return "Date(UTC),Market,Type,Price,Amount,Total,Fee,Fee Coin".split(","); },
+        "Date":     function(pSource) { return pSource["Date(UTC)"]; },
+        "Type":     function(pSource) { return pSource["Type"].toUpperCase(); },
+        "Exchange": function(pSource) { return "Binance"; },
+        "Base amount":   function(pSource) { return pSource["Amount"]; },
+        "Base currency": function(pSource) {
+            pos = pSource["Market"].indexOf(pSource["Fee Coin"]);
+            // base currency is always last on binance pairs
+            if(pos == 0) {
+                a = pSource["Market"].substring(pSource["Fee Coin"].length );
+
+            } else {
+                a = pSource["Market"].substring(0,  pSource["Fee Coin"].length);
+            }
+            return a;
+        },
+        "Quote amount":     function(pSource) { return pSource['Total']; },
+        "Quote currency":   function(pSource) { 
+            pos = pSource["Market"].indexOf(pSource["Fee Coin"]);
+            if(pos == 0) {
+                a = pSource["Market"].substring(0, pSource["Fee Coin"].length );
+
+            } else {
+                a = pSource["Market"].substring(pos);
+            }
+            return a;
+         },
+        
+        "Fee":              function(pSource) { return pSource['Fee']; },
+        "Fee currency":     function(pSource) { return pSource['Fee Coin']; },
+
+        "Costs/Proceeds":          function(pSource) { return ""; },
+        "Costs/Proceeds currency": function(pSource) { return ""; },
+        "Sync holdings":           function(pSource) { return ""; },
+        "Sent/Received from":      function(pSource) { return ""; },
+        "Sent to":                 function(pSource) { return ""; },
+        "Notes":                   function(pSource) { return ""; }
     }
 };
+
 (function( $ ){
 
     var methods = {
@@ -85,9 +126,10 @@ var exchangeMapping = {
                         console.warn("Column " + DeltaOutput[Column] + " Not managed");
                     }
                 }
+
                 results.push(result.join(","));
             }
-            return results;
+            return results.join('\n');
         }
     };
 

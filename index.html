@@ -4,67 +4,114 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
         <title>xCsv</title>
-		
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
-		
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha256-ZT4HPpdCOt2lvDkXokHuhJfdOKSPFLzeAJik5U/Q+l4=" crossorigin="anonymous" />
-		
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.8.9/jquery.csv.min.js" integrity="sha256-F8eQhL9KDGgaDitxiSyq6SnTCL0m67rt7niivBtH2rc=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js" integrity="sha256-CutOzxCRucUsn6C6TcEYsauvvYilEniTXldPa6/wu0k=" crossorigin="anonymous"></script>
         
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.8.9/jquery.csv.min.js" integrity="sha256-F8eQhL9KDGgaDitxiSyq6SnTCL0m67rt7niivBtH2rc=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js" integrity="sha256-CutOzxCRucUsn6C6TcEYsauvvYilEniTXldPa6/wu0k=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js" integrity="sha256-FPJJt8nA+xL4RU6/gsriA8p8xAeLGatoyTjldvQKGdE=" crossorigin="anonymous"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.1/xlsx.full.min.js" integrity="sha256-vzSR+lySv0KEag7JZGIt59p04tPZekm9/N/Se/5s08w=" crossorigin="anonymous"></script>
         <script src="xcsv.js"></script>
 	</head>	
-	
+
 	<body id="id_body">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">xCsv</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        <div>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    </li>
+                </ul>
+            </div>
+
+        </nav>
+
+        <div class="container">
             <input type="file" id="files" name="files[]" multiple />
-            <div id="id_detected" class="well"></div>
-            <button type="button" id="id_btn_convert">Convert</button>
 
-            <div id="id_loadedfile" class="well"></div>
+            <div id="id_DetectedExchangeDiv" style="display:none;">
+                <span>Detected exchange </span><span id="id_Detected" class="well"></span>
+
+                <div>
+                    <button type="button" id="id_btn_convert">Convert</button>
+
+                    <div id="id_ConvertButtons">
+                        <button type="button" id="id_btn_show">Show converted</button>
+                        <button type="button" id="id_btn_save">Save converted</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="id_convertedfile" style="display:none;" class="well"></div>
 
             <script>
-                $('#id_btn_convert').on("click", function() {
-                    $('#id_loadedfile').text($('body').xcsv("convert", $('#id_loadedfile').text(), $('#id_detected').text()));
-                });
+                var gLoadedData = "";
+                var gConvertedData = "";
+                var gOriginalFilename = "";
 
                 $('body').xcsv();
                 
-                    function handleFile(pFile) {
-                        pFile.name;
+                $('#id_btn_convert').on("click", function() {
+                    gConvertedData = $('body').xcsv("convert", gLoadedData, $('#id_Detected').text());
 
-                        var reader = new FileReader();
+                    $('#id_ConvertButtons').show();
+                });
 
-                        reader.onload = (function(theFile) {
-                            return function(e) {
+                $('#id_btn_show').on("click", function() {
+                    $('#id_convertedfile').html(gConvertedData.replace(/(?:\r\n|\r|\n)/g, '<br>'));
+                    $('#id_convertedfile').show();
+                });
 
-                                $('#id_loadedfile').text(e.target.result);
-                                var exchange = $('body').xcsv("detect", $('#id_loadedfile').text());
-                                $('#id_detected').text(exchange);
-                                
-                            };
-                        })(pFile);
+                $('#id_btn_save').on("click", function() {
+                    var blob = new Blob([gConvertedData], {type: "text/csv"});
+                    saveAs(blob, gOriginalFilename);
+                });
 
-                        reader.readAsText(pFile);
+                function handleFile(pFile) {
+                    var reader = new FileReader();
+                    reader.onload = (function(theFile) {
+                        return function(e) {
+                            gOriginalFilename = pFile.name;
+                            gLoadedData = e.target.result;
+
+                            data = new Uint8Array(gLoadedData);
+                            wb = XLSX.read(data, {type: 'array', raw: 'true' });
+                            gLoadedData = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]);
+
+                            var exchange = $('body').xcsv("detect", gLoadedData);
+
+                            $('#id_Detected').text(exchange);
+                            $('#id_DetectedExchangeDiv').show();
+                            $('#id_ConvertButtons').hide();
+                        };
+                    })(pFile);
+
+                    reader.readAsArrayBuffer(pFile);
+                }
+                
+                function handleFileSelect(evt) {
+                    var files = evt.target.files;
+                
+                    for (var i = 0, file; file = files[i]; i++) {
+
+                        handleFile(file);
+                        break;
                     }
-                    
-                    function handleFileSelect(evt) {
-                        var files = evt.target.files;
-                    
-                        for (var i = 0, file; file = files[i]; i++) {
 
-                            handleFile(file);
-                            break;
-                        }
-
-                        $('#id_loadedfile').html();
-                    }
-                    
-                    document.getElementById('files').addEventListener('change', handleFileSelect, false);
-                </script>
+                    $('#id_loadedfile').html();
+                }
+                document.getElementById('files').addEventListener('change', handleFileSelect, false);
+            </script>
         </div>
 
 	</body>
