@@ -73,6 +73,30 @@ var exchangeMapping = {
         "Sent/Received from":      function(pSource) { return ""; },
         "Sent to":                 function(pSource) { return ""; },
         "Notes":                   function(pSource) { return ""; }
+    },
+	
+	"KuCoin": {
+        "_KnownCSVColumns": function(pSource)  { return "Time,Coins,Sell/Buy,Filled Price,Coin,Amount,Coin,Volume,Coin,Fee,Coin".split(","); },
+        "_RenameCSVColumns": function(pSource) { return "Time,Coins,Sell/Buy,Filled Price,Price-Coin,Amount,Amount-Coin,Volume,Volume-Coin,Fee,Fee-Coin"},
+
+        "Date":     function(pSource) { return pSource["Time"]; },
+        "Type":     function(pSource) { return pSource["Sell/Buy"].toUpperCase(); },
+        "Exchange": function(pSource) { return "KuCoin"; },
+        "Base amount":   function(pSource) { return pSource["Amount"]; },
+        "Base currency": function(pSource) { return pSource["Amount-Coin"]; },
+        
+        "Quote amount":     function(pSource) { return pSource['Filled Price']; },
+        "Quote currency":   function(pSource) { return pSource['Price-Coin']; },
+
+        "Fee":              function(pSource) { return pSource['Fee']; },
+        "Fee currency":     function(pSource) { return pSource['Fee-Coin']; },
+
+        "Costs/Proceeds":          function(pSource) { return ""; },
+        "Costs/Proceeds currency": function(pSource) { return ""; },
+        "Sync holdings":           function(pSource) { return ""; },
+        "Sent/Received from":      function(pSource) { return ""; },
+        "Sent to":                 function(pSource) { return ""; },
+        "Notes":                   function(pSource) { return ""; }
     }
 };
 
@@ -105,9 +129,13 @@ var exchangeMapping = {
         },
 
         convert: function (pContent, pExchange) {
-            var csvdata = $.csv.toObjects(pContent);
-
             var exchange = exchangeMapping[pExchange];
+
+            if (typeof exchange['_RenameCSVColumns'] !== "undefined") {
+                pContent = pContent.replace( exchange._KnownCSVColumns(), exchange._RenameCSVColumns() );
+            }
+
+            var csvdata = $.csv.toObjects(pContent);
             var results = [DeltaOutput.join(",")];
 
             for(var data in csvdata) {
