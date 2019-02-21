@@ -128,6 +128,10 @@ var exchangeMapping = {
             return false;
         },
 
+        csvheader: function() {
+            return DeltaOutput.join(",");
+        },
+
         convert: function (pContent, pExchange) {
             var exchange = exchangeMapping[pExchange];
 
@@ -136,7 +140,7 @@ var exchangeMapping = {
             }
 
             var csvdata = $.csv.toObjects(pContent);
-            var results = [DeltaOutput.join(",")];
+            var results = [];
 
             for(var data in csvdata) {
                 result = [];

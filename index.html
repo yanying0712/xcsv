@@ -93,7 +93,8 @@
                 <input type="file" id="files" name="files[]" multiple />
 
                 <div id="id_DetectedExchangeDiv" style="display:none;">
-                    <span>Detected exchange </span><span id="id_Detected" class="well"></span>
+                    <span>Detected exchange </span>
+                    <ul id="id_Detected" class="well"></ul>
 
                     <div>
                         <button type="button" id="id_btn_convert">Convert</button>
@@ -117,7 +118,7 @@
     </footer>
 
     <script>
-        var gLoadedData = "";
+        var gLoadedData = [];
         var gConvertedData = "";
         var gOriginalFilename = "";
 
@@ -130,7 +131,14 @@
 
 
         $('#id_btn_convert').on("click", function () {
-            gConvertedData = $('body').xcsv("convert", gLoadedData, $('#id_Detected').text());
+
+            gConvertedData = $('body').xcsv("csvheader") + "\n";
+
+            for (var key in gLoadedData) {
+                var exchange = $('body').xcsv("detect", gLoadedData[key]);
+                gConvertedData += $('body').xcsv("convert", gLoadedData[key], exchange);
+                gConvertedData += "\n";
+            }
 
             $('#id_ConvertButtons').show();
         });
@@ -142,23 +150,25 @@
 
         $('#id_btn_save').on("click", function () {
             var blob = new Blob([gConvertedData], { type: "text/csv" });
-            saveAs(blob, gOriginalFilename);
+            saveAs(blob, "DeltaImport.csv");
         });
 
         function handleFile(pFile) {
             var reader = new FileReader();
             reader.onload = (function (theFile) {
+                
                 return function (e) {
+
                     gOriginalFilename = pFile.name;
-                    gLoadedData = e.target.result;
 
-                    data = new Uint8Array(gLoadedData);
+                    data = new Uint8Array(e.target.result);
                     wb = XLSX.read(data, { type: 'array', raw: 'true' });
-                    gLoadedData = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]);
+                    FinalData = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]);
 
-                    var exchange = $('body').xcsv("detect", gLoadedData);
+                    var exchange = $('body').xcsv("detect", FinalData);
+                    gLoadedData[exchange] = FinalData;
 
-                    $('#id_Detected').text(exchange);
+                    $('#id_Detected').append("<li>" + exchange + "</li>");
                     $('#id_DetectedExchangeDiv').show();
                     $('#id_ConvertButtons').hide();
                 };
@@ -169,11 +179,13 @@
 
         function handleFileSelect(evt) {
             var files = evt.target.files;
+            gLoadedData = [];
+
+            $('#id_Detected').text("");
 
             for (var i = 0, file; file = files[i]; i++) {
 
                 handleFile(file);
-                break;
             }
 
             $('#id_loadedfile').html();
