@@ -97,6 +97,45 @@ var exchangeMapping = {
         "Sent/Received from":      function(pSource) { return ""; },
         "Sent to":                 function(pSource) { return ""; },
         "Notes":                   function(pSource) { return ""; }
+    },
+
+    "Bittrex": {
+        "_KnownCSVColumns": function(pSource)  { return "OrderUuid,Exchange,Type,Quantity,Limit,CommissionPaid,Price,Opened,Closed".split(","); },
+
+        "Date":             function(pSource) { 
+            var a = moment(pSource['Opened'], "MM/DD/YYYY hh:mm aa"); 
+            return a.utc().format("YYYY-MM-DD hh:mm:ss Z"); },
+        "Type":             function(pSource) { 
+            switch(pSource['Type']) { 
+                case "LIMIT_SELL":
+                    return "SELL";
+                case "LIMIT_BUY":
+                    return "BUY";
+        }},
+        "Exchange": function(pSource) { return "Bittrex"; },
+        "Base amount":   function(pSource) { return pSource["Price"]; },
+        "Base currency": function(pSource) {
+            pos = pSource["Exchange"].indexOf("-");
+            return pSource["Exchange"].substring(0,  pos);
+        },
+
+        "Quote amount":     function(pSource) { return pSource['Quantity']; },
+        "Quote currency": function(pSource) {
+            pos = pSource["Exchange"].indexOf("-");
+            return pSource["Exchange"].substring(pos+1);
+        },
+
+        "Fee":              function(pSource) { return pSource['CommissionPaid']; },
+        "Fee currency": function(pSource) {
+            pos = pSource["Exchange"].indexOf("-");
+            return pSource["Exchange"].substring(0,  pos);
+        },
+        "Costs/Proceeds":          function(pSource) { return ""; },
+        "Costs/Proceeds currency": function(pSource) { return ""; },
+        "Sync holdings":           function(pSource) { return ""; },
+        "Sent/Received from":      function(pSource) { return ""; },
+        "Sent to":                 function(pSource) { return ""; },
+        "Notes":                   function(pSource) { return ""; }
     }
 };
 
