@@ -1,5 +1,9 @@
 var DeltaOutput = "Date,Type,Exchange,Base amount,Base currency,Quote amount,Quote currency,Fee,Fee currency,Costs/Proceeds,Costs/Proceeds currency,Sync Holdings,Sent/Received from,Sent to,Notes".split(",");
 
+var exchangeData = {
+
+};
+
 var exchangeMapping = {
     "Bitstamp": {
         "_KnownCSVColumns":      function(pSource) { return "Type,Datetime,Account,Amount,Value,Rate,Fee,Sub Type".split(","); },
@@ -36,32 +40,59 @@ var exchangeMapping = {
     },
 
     "Binance": {
+        // NOTE: The base currency is always last on binance pairs, 
+        //       however Delta expects the pairs in this format     
         "_KnownCSVColumns": function(pSource) { return "Date(UTC),Market,Type,Price,Amount,Total,Fee,Fee Coin".split(","); },
         "Date":     function(pSource) { return pSource["Date(UTC)"]; },
         "Type":     function(pSource) { return pSource["Type"].toUpperCase(); },
         "Exchange": function(pSource) { return "Binance"; },
+
         "Base amount":   function(pSource) { return pSource["Amount"]; },
         "Base currency": function(pSource) {
-            pos = pSource["Market"].indexOf(pSource["Fee Coin"]);
-            // base currency is always last on binance pairs
-            if(pos == 0) {
-                a = pSource["Market"].substring(pSource["Fee Coin"].length );
-
-            } else {
-                a = pSource["Market"].substring(0,  pSource["Fee Coin"].length);
+            // To decide on where to split the 'Market' field, we find the Fee
+            // Knowing the base pair is always last, we always take the second part of the Market string
+            for( var symbol in exchangeData["Binance"].symbols) {
+                
+                pos = pSource["Market"].indexOf(exchangeData["Binance"].symbols[symbol]);
+                if(pos!=-1)
+                    break;
             }
-            return a;
+
+            if(pos) {
+                Quote = pSource["Market"].substring(0, pos);
+                Base = pSource["Market"].substring(pos);
+            } else {
+                Base = pSource["Market"].substring(pSource["Fee Coin"].length);
+                Quote = pSource["Market"].substring(0, pSource["Fee Coin"].length);
+            }
+
+            if(Quote == "BCC")
+                Quote = "BCHABC";
+
+            return Quote;
         },
+
         "Quote amount":     function(pSource) { return pSource['Total']; },
         "Quote currency":   function(pSource) { 
-            pos = pSource["Market"].indexOf(pSource["Fee Coin"]);
-            if(pos == 0) {
-                a = pSource["Market"].substring(0, pSource["Fee Coin"].length );
-
-            } else {
-                a = pSource["Market"].substring(pos);
+            for( var symbol in exchangeData["Binance"].symbols) {
+                
+                pos = pSource["Market"].indexOf(exchangeData["Binance"].symbols[symbol]);
+                if(pos!=-1)
+                    break;
             }
-            return a;
+
+            if(pos) {
+                Quote = pSource["Market"].substring(0, pos);
+                Base = pSource["Market"].substring(pos);
+            } else {
+                Base = pSource["Market"].substring(pSource["Fee Coin"].length);
+                Quote = pSource["Market"].substring(0, pSource["Fee Coin"].length);
+            }
+            
+            if(Base == "BCC")
+                Base = "BCHABC";
+            
+            return Base;
          },
         
         "Fee":              function(pSource) { return pSource['Fee']; },
@@ -113,16 +144,29 @@ var exchangeMapping = {
                     return "BUY";
         }},
         "Exchange": function(pSource) { return "Bittrex"; },
-        "Base amount":   function(pSource) { return pSource["Price"]; },
+
+        "Base amount":     function(pSource) { return pSource['Quantity']; },
         "Base currency": function(pSource) {
             pos = pSource["Exchange"].indexOf("-");
-            return pSource["Exchange"].substring(0,  pos);
+            base = pSource["Exchange"].substring(pos+1);
+            if(base == "BCC")
+                base = "BCH";
+
+            if(base=="BSD")
+                base="BSD*";
+
+            return base;
         },
 
-        "Quote amount":     function(pSource) { return pSource['Quantity']; },
+        "Quote amount":   function(pSource) { return pSource["Price"]; },
         "Quote currency": function(pSource) {
             pos = pSource["Exchange"].indexOf("-");
-            return pSource["Exchange"].substring(pos+1);
+            quote = pSource["Exchange"].substring(0,  pos);
+            if(quote == "BCC")
+                quote = "BCH";
+            if(base=="BSD")
+                base="BSD*";
+            return quote;
         },
 
         "Fee":              function(pSource) { return pSource['CommissionPaid']; },
@@ -143,6 +187,21 @@ var exchangeMapping = {
 
     var methods = {
         init : function(options) {
+
+            for (var exchange in exchangeMapping) {
+
+                if(exchange == "Binance") {
+                    exchangeData[exchange] = {};
+
+                    exchangeData[exchange].symbols = [];
+
+                    for(var symbol in binanceData.symbols) {
+                        if(!exchangeData[exchange].symbols.includes(binanceData.symbols[symbol].quoteAsset))
+                            exchangeData[exchange].symbols.push(binanceData.symbols[symbol].quoteAsset);
+                    }
+                }
+
+            }
 
         },
 
