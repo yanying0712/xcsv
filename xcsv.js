@@ -180,6 +180,41 @@ var exchangeMapping = {
         "Sent/Received from":      function(pSource) { return ""; },
         "Sent to":                 function(pSource) { return ""; },
         "Notes":                   function(pSource) { return ""; }
+    },
+
+    "Coinspot": {
+        "_KnownCSVColumns": function(pSource)  { return "Transaction Date,Type,Market,Amount,Rate inc. fee,Rate ex. fee,Fee,Fee AUD (inc GST),GST AUD,Total AUD,Total (inc GST)".split(","); },
+        
+        "Date":     function(pSource) { return pSource["Transaction Date"]; },
+        "Type":     function(pSource) { return pSource["Type"].toUpperCase(); },
+        "Exchange": function(pSource) { return "Coinspot"; },
+
+        "Base amount":     function(pSource) { return pSource['Amount']; },
+        "Base currency": function(pSource) {
+            pos = pSource["Market"].indexOf("/");
+            base = pSource["Market"].substring(0, pos);
+            if(base == "BCC")
+                base = "BCH";
+
+            if(base=="BSD")
+                base="BSD*";
+
+            return base;
+        },
+
+        "Quote amount":   function(pSource) { return pSource["Rate ex. fee"]; },
+        "Quote currency": function(pSource) {
+            pos = pSource["Exchange"].indexOf("/");
+            quote = pSource["Exchange"].substring(pos + 1);
+            if(quote == "BCC")
+                quote = "BCH";
+            if(base=="BSD")
+                base="BSD*";
+            return quote;
+        },
+
+        "Fee":              function(pSource) { return pSource['Fee AUD (inc GST)']; },
+        "Fee currency": function(pSource) { return "AUD" },
     }
 };
 
