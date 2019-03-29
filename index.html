@@ -82,10 +82,7 @@
 
     <div class="container">
         <div class="row justify-content-md-center">
-            <h1>eXchange CSV</h1>
-        </div>
-        <div class="row justify-content-md-center">
-            <h2>To Delta</h2>
+            <a href="https://delta.app/"><img src="logo.png"></a>
         </div>
         <br/>
 
@@ -118,11 +115,23 @@
         </div>
 
         <div id="id_convertedfile" style="display:none;" class="well"></div>
+
+        <br/>
+        <div class="row">
+            <ul>
+<li>You can add multiple files at once from supported exchanges.</li><br/>
+<li>Most CSVs have little time spent on them by the exchanges so usually just have completed BUY and SELL transactions, you would still need to manually update your Delta on most occasions with Deposits, Withdrawals and Transfers.</li><br/>
+<li>Best bet is to use CSV to import into Delta, add manually all Deposits, Withdrawals and Transfers, then add a Delta supported API to keep the portfolio up-to-date with completed BUY and SELL transactions.</li><br/>
+<li>Any questions or if you wish to help out contact @RileyEllett on Telegram, you can find me in the Delta official telegram channel t.me/getdelta</li><br/>
+            </ul>
+        </div>
+
     </div>
 
     <footer class="footer">
         <div class="container">
-            <span class="text-muted">segra</span>
+            <span class="text-muted">2019 <a href="https://github.com/segrax/" target="_blank">segra</a></span>
+            <span class="text-muted float-right">Last Update: 29/03/2019</span>
         </div>
     </footer>
 
@@ -137,7 +146,6 @@
 
             $('#id_SupportedExchangeList').append("<li>" + exchange + "</li>");
         }
-
 
         $('#id_btn_convert').on("click", function () {
 
@@ -175,6 +183,7 @@
                     FinalData = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]);
 
                     var exchange = $('body').xcsv("detect", FinalData);
+                    debugger;
                     gLoadedData[exchange] = FinalData;
 
                     $('#id_Detected').append("<li>" + exchange + "</li>");

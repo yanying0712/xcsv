@@ -130,6 +130,29 @@ var exchangeMapping = {
         "Notes":                   function(pSource) { return ""; }
     },
 
+	"KuCoin 2.0": {
+        "_KnownCSVColumns": function(pSource)  { return "tradeCreatedAt,symbol,side,price,size,funds,fee,".split(","); },
+
+        "Date":     function(pSource) { return pSource["Time"]; },
+        "Type":     function(pSource) { return pSource["side"].toUpperCase(); },
+        "Exchange": function(pSource) { return "KuCoin"; },
+        "Base amount":   function(pSource) { return pSource["funds"]; },
+        "Base currency": function(pSource) { return pSource['symbol'].split('-')[1] },
+        
+        "Quote amount":     function(pSource) { return pSource['size'] },
+        "Quote currency":   function(pSource) { return pSource['symbol'].split('-')[0] },
+
+        "Fee":              function(pSource) { return pSource['fee']; },
+        "Fee currency":     function(pSource) { return pSource['symbol'].split('-')[1] },
+
+        "Costs/Proceeds":          function(pSource) { return ""; },
+        "Costs/Proceeds currency": function(pSource) { return ""; },
+        "Sync holdings":           function(pSource) { return ""; },
+        "Sent/Received from":      function(pSource) { return ""; },
+        "Sent to":                 function(pSource) { return ""; },
+        "Notes":                   function(pSource) { return ""; }
+    },
+
     "Bittrex": {
         "_KnownCSVColumns": function(pSource)  { return "OrderUuid,Exchange,Type,Quantity,Limit,CommissionPaid,Price,Opened,Closed".split(","); },
 
@@ -204,8 +227,8 @@ var exchangeMapping = {
 
         "Quote amount":   function(pSource) { return pSource["Rate ex. fee"]; },
         "Quote currency": function(pSource) {
-            pos = pSource["Exchange"].indexOf("/");
-            quote = pSource["Exchange"].substring(pos + 1);
+            pos = pSource["Market"].indexOf("/");
+            quote = pSource["Market"].substring(pos + 1);
             if(quote == "BCC")
                 quote = "BCH";
             if(base=="BSD")
@@ -213,8 +236,8 @@ var exchangeMapping = {
             return quote;
         },
 
-        "Fee":              function(pSource) { return pSource['Fee AUD (inc GST)']; },
-        "Fee currency": function(pSource) { return "AUD" },
+        "Fee":              function(pSource) { return pSource['Fee'].split(' ')[0]; },
+        "Fee currency": function(pSource) { return pSource['Fee'].split(' ')[1] },
     }
 };
 
@@ -311,5 +334,11 @@ var exchangeMapping = {
         }    
     };
 
+    // Sort the list of exchanges by name
+    const ordered = {};
+    Object.keys(exchangeMapping).sort().forEach(function(key) {
+      ordered[key] = exchangeMapping[key];
+    });
 
+    exchangeMapping = ordered;
 })( jQuery );
