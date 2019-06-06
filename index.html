@@ -28,6 +28,7 @@
         crossorigin="anonymous"></script>
 
     <script src="binance.json"></script>
+    <script src="exchangeMapping.js"></script>
     <script src="xcsv.js"></script>
 
     <style>
@@ -183,7 +184,7 @@
                     FinalData = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]);
 
                     var exchange = $('body').xcsv("detect", FinalData);
-                    debugger;
+                    //debugger;
                     gLoadedData[exchange] = FinalData;
 
                     $('#id_Detected').append("<li>" + exchange + "</li>");
