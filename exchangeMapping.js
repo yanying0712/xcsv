@@ -233,6 +233,7 @@ var exchangeMapping = {
         "Fee":              function(pSource) { return pSource['Fee'].split(' ')[0]; },
         "Fee currency": function(pSource) { return pSource['Fee'].split(' ')[1] },
     },
+
     "Coinbase": {
         "_KnownCSVColumns": function(pSource){ return "Timestamp,Transaction Type,Asset,Quantity Transacted,USD Spot Price at Transaction,USD Amount Transacted (Inclusive of Coinbase Fees),Address,Notes".split(",");},
         "Date": function(pSource) {
@@ -323,4 +324,97 @@ var exchangeMapping = {
         "Notes":                   function(pSource) { return pSource["Notes"]; }
 
     },
+
+    "Bitfinex": {
+        "_KnownCSVColumns": function(pSource)  { return "#,PAIR,AMOUNT,PRICE,FEE,FEE CURRENCY,DATE,ORDER ID".split(","); },
+
+        "Date": function(pSource) {
+            var a = moment(pSource['DATE'], "MM/DD/YYYY hh:mm aa");
+            var date = a.utc().format("YYYY-MM-DD hh:mm:ss Z");
+            if(date == "Invalid date"){
+               var b = moment(pSource['DATE'], "DD/MM/YYYY hh:mm aa");
+               date = b.utc().format("YYYY-MM-DD hh:mm:ss Z");
+            }
+
+            return date;
+        },
+        "Type":     function(pSource) {
+            if(pSource['AMOUNT'] > 0){
+                return "BUY";
+            }else{
+                return "SELL";
+            }
+            return "TRANSFER"; },
+        "Exchange": function(pSource) { return "Bitfinex"; },
+        "Base amount":   function(pSource) { return pSource["AMOUNT"]; },
+        "Base currency": function(pSource) { return pSource['PAIR'].split('/')[0] },
+
+        "Quote amount":     function(pSource) { return pSource['PRICE'] },
+        "Quote currency":   function(pSource) { return pSource['PAIR'].split('/')[1] },
+
+        "Fee":              function(pSource) { return pSource['FEE']; },
+        "Fee currency":     function(pSource) { return pSource['FEE CURRENCY']; },
+
+        "Costs/Proceeds":          function(pSource) { return ""; },
+        "Costs/Proceeds currency": function(pSource) { return ""; },
+        "Sync Holdings":           function(pSource) { return ""; },
+        "Sent/Received from":      function(pSource) { return ""; },
+        "Sent to":                 function(pSource) { return ""; },
+        "Notes":                   function(pSource) { return ""; }
+    },
+
+    "Coinbase Pro": {
+        "_KnownCSVColumns": function(pSource)  { return "trade id,product,side,created at,size,size unit,price,fee,total,proce/fee/total unit".split(","); },
+
+        "Date":     function(pSource) { return pSource["created at"]; },
+        "Type":     function(pSource) { return pSource["side"].toUpperCase(); },
+        "Exchange": function(pSource) { return "Coinbase Pro"; },
+        "Base amount":   function(pSource) { return pSource["price"]; },
+        "Base currency": function(pSource) { return pSource['product'].split('-')[0] },
+
+        "Quote amount":     function(pSource) { return pSource['size'] },
+        "Quote currency":   function(pSource) { return pSource['product'].split('-')[1] },
+
+        "Fee":              function(pSource) { return pSource['fee']; },
+        "Fee currency":     function(pSource) { return pSource['product'].split('-')[1] },
+
+        "Costs/Proceeds":          function(pSource) { return pSource['total']; },
+        "Costs/Proceeds currency": function(pSource) { return pSource['proce/fee/total unit']; },
+        "Sync holdings":           function(pSource) { return ""; },
+        "Sent/Received from":      function(pSource) { return ""; },
+        "Sent to":                 function(pSource) { return ""; },
+        "Notes":                   function(pSource) { return ""; }
+    },
+
+    "Poloniex": {
+        "_KnownCSVColumns": function(pSource)  { return "Date,Market,Category,Type,Price,Amount,Total,Fee,Order Number,Base Total Less Fee,Quote Total Less Fee".split(","); },
+
+        "Date": function(pSource) {
+            var a = moment(pSource['Date'], "MM/DD/YYYY hh:mm aa");
+            var date = a.utc().format("YYYY-MM-DD hh:mm:ss Z");
+            if(date == "Invalid date"){
+                var b = moment(pSource['Date'], "DD/MM/YYYY hh:mm aa");
+                date = b.utc().format("YYYY-MM-DD hh:mm:ss Z");
+            }
+
+            return date;
+        },
+        "Type":     function(pSource) { return pSource["Type"].toUpperCase(); },
+        "Exchange": function(pSource) { return "Poloniex"; },
+        "Base amount":   function(pSource) { return pSource["Price"]; },
+        "Base currency": function(pSource) { return pSource['Market'].split('/')[1] },
+
+        "Quote amount":     function(pSource) { return pSource['Amount'] },
+        "Quote currency":   function(pSource) { return pSource['Market'].split('/')[0] },
+
+        "Fee":              function(pSource) { return ""; },
+        "Fee currency":     function(pSource) { return ""; },
+
+        "Costs/Proceeds":          function(pSource) { return ""; },
+        "Costs/Proceeds currency": function(pSource) { return ""; },
+        "Sync holdings":           function(pSource) { return ""; },
+        "Sent/Received from":      function(pSource) { return ""; },
+        "Sent to":                 function(pSource) { return ""; },
+        "Notes":                   function(pSource) { return ""; }
+    }
 };
