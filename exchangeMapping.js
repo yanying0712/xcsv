@@ -235,23 +235,91 @@ var exchangeMapping = {
     },
     "Coinbase": {
         "_KnownCSVColumns": function(pSource){ return "Timestamp,Transaction Type,Asset,Quantity Transacted,USD Spot Price at Transaction,USD Amount Transacted (Inclusive of Coinbase Fees),Address,Notes".split(",");},
-        "Date": function(pSource) { return pSource["Timestamp"]; },
-        "Type": function(pSource) { return pSource["Transaction Type"]; },
-        "Exchange": function(pSource) { return pSource["Coinbase"]; },
+        "Date": function(pSource) {
+            var a = moment(pSource['Timestamp'], "MM/DD/YYYY hh:mm aa");
+            return a.utc().format("YYYY-MM-DD hh:mm:ss Z");
+        },
+        "Type": function(pSource) {
+            var type = pSource["Transaction Type"].toUpperCase();
+            switch(type) {
+                case "RECEIVE":
+                    return "TRANSFER";
+                    break;
+                case "SEND":
+                    return "TRANSFER";
+                    break;
+                case "TRADE":
+                    return "SELL";
+                    break;
+                default:
+                    return type;
+            }
+            },
+        "Exchange": function(pSource) { return "Coinbase"; },
         "Base amount":   function(pSource) { return pSource["Quantity Transacted"]; },
         "Base currency": function(pSource) { return pSource['Asset']; },
 
-        "Quote amount":     function(pSource) { return pSource['USD Amount Transacted (Inclusive of Coinbase Fees)'] },
-        "Quote currency":   function(pSource) { return "USD"; },
+        "Quote amount":     function(pSource) {
+            var amount = pSource['USD Amount Transacted (Inclusive of Coinbase Fees)'];
+            var type = pSource["Transaction Type"].toUpperCase();
+
+            switch(type){
+                case "RECEIVE":
+                    return "";
+                    break;
+                case "SEND":
+                    return "";
+                    break;
+                default:
+                    return amount;
+            }
+            },
+        "Quote currency":   function(pSource) {
+            var currency = "USD";
+            var type = pSource["Transaction Type"].toUpperCase();
+            switch(type){
+                case "RECEIVE":
+                    return "";
+                    break;
+                case "SEND":
+                    return "";
+                    break;
+                default:
+                    return currency;
+            }
+            },
 
         "Fee":              function(pSource) { return ""; },
         "Fee currency":     function(pSource) { return ""; },
 
         "Costs/Proceeds":          function(pSource) { return ""; },
         "Costs/Proceeds currency": function(pSource) { return ""; },
-        "Sync holdings":           function(pSource) { return ""; },
-        "Sent/Received from":      function(pSource) { return ""; },
-        "Sent to":                 function(pSource) { return ""; },
+        "Sync Holdings":           function(pSource) { return ""; },
+        "Sent/Received from":      function(pSource) {
+            var type = pSource["Transaction Type"].toUpperCase();
+            switch(type){
+                case "SEND":
+                    return "MY_WALLET";
+                    break;
+                case "RECEIVE":
+                    return "MY_WALLET";
+                default:
+                    return "";
+            }
+            },
+        "Sent to":                 function(pSource) {
+            var type = pSource["Transaction Type"].toUpperCase();
+            switch(type){
+                case "SEND":
+                    return "MY_WALLET";
+                    break;
+                case "RECEIVE":
+                    return "MY_WALLET";
+                    break;
+                default:
+                    return "";
+            }
+        },
         "Notes":                   function(pSource) { return pSource["Notes"]; }
 
     },

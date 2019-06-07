@@ -68,13 +68,15 @@ var exchangeData = {};
                 var pContent_Coinbase = ((pContent.split('\n')).splice(3)).join('\n');
 
                 csvdata= $.csv.toObjects(pContent_Coinbase);
+                csvdata.map(item => {
+                    item["Notes"] = item["Notes"].replace('\n\n',' ');
+                    item["Notes"] = item["Notes"].replace(',', ' ');
+                });
 
             }else{
                 csvdata = $.csv.toObjects(pContent);
             }
-            if(exchange == "Coinbase"){
-                csvdata = csvdata.splice(0,2);
-            }
+
             var results = [];
 
             for(var data in csvdata) {
