@@ -1,3 +1,4 @@
+
 var exchangeMapping = {
     "Bitstamp": {
         "_KnownCSVColumns":      function(pSource) { return "Type,Datetime,Account,Amount,Value,Rate,Fee,Sub Type".split(","); },
@@ -141,7 +142,7 @@ var exchangeMapping = {
 
         "Costs/Proceeds":          function(pSource) { return ""; },
         "Costs/Proceeds currency": function(pSource) { return ""; },
-        "Sync holdings":           function(pSource) { return ""; },
+        "Sync Holdings":           function(pSource) { return ""; },
         "Sent/Received from":      function(pSource) { return ""; },
         "Sent to":                 function(pSource) { return ""; },
         "Notes":                   function(pSource) { return ""; }
@@ -417,6 +418,144 @@ var exchangeMapping = {
         "Sync holdings":           function(pSource) { return ""; },
         "Sent/Received from":      function(pSource) { return ""; },
         "Sent to":                 function(pSource) { return ""; },
+        "Notes":                   function(pSource) { return ""; }
+    },
+
+    "Gemini": {
+        "_KnownCSVColumns": function(pSource)  { return "Date,Time (UTC),Type,Symbol,Specification,Liquidity Indicator,Trading Fee Rate (bps),USD Amount USD,Fee (USD) USD,USD Balance USD,BTC Amount BTC,Fee (BTC) BTC,BTC Balance BTC,ETH Amount ETH,Fee (ETH) ETH,ETH Balance ETH,ZEC Amount ZEC,Fee ZEC,ZEC Balance ZEC,BCH Amount BCH,Fee (BCH) BCH,BCH Balance BCH,LTC Amount LTC,Fee (LTC) LTC,LTC Balance LTC,Trade ID,Order ID,Order Date,Order Time,Client Order ID,API Session,Tx Hash,Deposit Destination,Deposit Tx Output,Withdrawal Destination,Withdrawal Tx Output".split(","); },
+
+        "Date":     function(pSource) {
+            return pSource["Date"] + " " + pSource["Time (UTC)"]; },
+        "Type":     function(pSource) {
+            var type = pSource['Type'];
+            switch(type){
+                case 'Credit':
+                    return 'DEPOSIT';
+                case 'Debit':
+                    return 'WITHDRAW';
+                default:
+                    return pSource['Type'].toUpperCase();
+            }
+        },
+        "Exchange": function(pSource) {
+            return "Gemini"; },
+        "Base amount":   function(pSource) {
+            var type = pSource['Type'];
+            var symbol = undefined;
+            if(type === 'Credit' || type === 'Debit'){
+                symbol =  pSource['Symbol'];
+            }else{
+                symbol =  pSource['Symbol'].slice(0,3);
+            }
+            if(!symbol){
+                return '';
+            }
+
+            var target = symbol + ' Amount ' + symbol;
+
+            var temp = pSource[target];
+
+            var regex = ['$','(',')',',','-'];
+            regex.map(e => {
+                temp = temp.replace(e, '');
+            })
+            return temp.split(' ')[0];
+
+        },
+        "Base currency": function(pSource) {
+            var type = pSource['Type'];
+            if(type == 'Credit' || type == 'Debit'){
+                return pSource['Symbol'];
+            }else{
+                return pSource['Symbol'].slice(0,3);
+            }
+        },
+
+        "Quote amount":     function(pSource) {
+            var type = pSource['Type'];
+            var symbol = undefined;
+            if(type == 'Credit' || type == 'Debit'){
+                return '';
+            }else{
+                symbol =  pSource['Symbol'].slice(-3);
+            }
+            if(!symbol){
+                return '';
+            }
+            var target = symbol + ' Amount ' + symbol;
+            var temp = pSource[target];
+
+            var regex = ['$','(',')',',','-'];
+            regex.map(e => {
+                temp = temp.replace(e, '');
+            })
+            return temp.split(' ')[0];
+        },
+        "Quote currency":   function(pSource) {
+            var type = pSource['Type'];
+            if(type == 'Credit' || type == 'Debit'){
+                return '';
+            }else{
+
+                return pSource['Symbol'].slice(-3);
+            }
+        },
+
+        "Fee":              function(pSource) {
+            var type = pSource['Type'];
+            var symbol = undefined;
+            if(type == 'Credit' || type == 'Debit'){
+                return '';
+            }else{
+                symbol =  pSource['Symbol'].slice(-3);
+            }
+            if(!symbol){
+                return '';
+            }
+            var target = 'Fee (' + symbol + ') ' + symbol;
+            var temp = pSource[target];
+
+            var regex = ['$','(',')',',','-'];
+            regex.map(e => {
+                temp = temp.replace(e, '');
+            })
+            return temp.split(' ')[0];
+        },
+        "Fee currency":     function(pSource) {
+            var type = pSource['Type'];
+            if(type == 'Credit' || type == 'Debit'){
+                return '';
+            }else{
+
+                return pSource['Symbol'].slice(-3);
+            }
+        },
+
+        "Costs/Proceeds":          function(pSource) { return ""; },
+        "Costs/Proceeds currency": function(pSource) { return ""; },
+        "Sync Holdings":           function(pSource) { return ""; },
+        "Sent/Received from":      function(pSource) {
+            var type = pSource['Type'];
+            switch(type){
+                case 'Credit':
+                    return 'Other_Wallet';
+                case 'Debit':
+                    return 'My_Wallet';
+                default:
+                    return '';
+            }
+        },
+        "Sent to":                 function(pSource) {
+            var type = pSource['Type'];
+            switch(type){
+                case 'Credit':
+                    return 'My_Wallet';
+                case 'Debit':
+                    return 'Other_Wallet';
+                default:
+                    return '';
+            }
+        },
         "Notes":                   function(pSource) { return ""; }
     }
 };

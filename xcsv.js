@@ -87,6 +87,9 @@ var exchangeData = {};
                     item["Notes"] = item["Notes"].replace(',', ' ');
                 });
 
+            }else if(pExchange === 'Gemini'){
+                csvdata = $.csv.toObjects(pContent);
+                csvdata.pop();
             }else{
                 csvdata = $.csv.toObjects(pContent);
             }
