@@ -425,7 +425,11 @@ var exchangeMapping = {
         "_KnownCSVColumns": function(pSource)  { return "Date,Time (UTC),Type,Symbol,Specification,Liquidity Indicator,Trading Fee Rate (bps),USD Amount USD,Fee (USD) USD,USD Balance USD,BTC Amount BTC,Fee (BTC) BTC,BTC Balance BTC,ETH Amount ETH,Fee (ETH) ETH,ETH Balance ETH,ZEC Amount ZEC,Fee ZEC,ZEC Balance ZEC,BCH Amount BCH,Fee (BCH) BCH,BCH Balance BCH,LTC Amount LTC,Fee (LTC) LTC,LTC Balance LTC,Trade ID,Order ID,Order Date,Order Time,Client Order ID,API Session,Tx Hash,Deposit Destination,Deposit Tx Output,Withdrawal Destination,Withdrawal Tx Output".split(","); },
 
         "Date":     function(pSource) {
-            return pSource["Date"] + " " + pSource["Time (UTC)"]; },
+            var date = pSource["Date"] + " " + pSource["Time (UTC)"];
+            console.log('date:', date);
+            var a = moment(date, "YYYY-MM-DD hh:mm aa");
+            return a.utc().format("YYYY-MM-DD hh:mm:ss Z");
+            },
         "Type":     function(pSource) {
             var type = pSource['Type'];
             switch(type){
@@ -557,5 +561,7 @@ var exchangeMapping = {
             }
         },
         "Notes":                   function(pSource) { return ""; }
-    }
+    },
+
+
 };
