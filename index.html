@@ -144,8 +144,9 @@
         $('body').xcsv();
 
         for (var exchange in exchangeMapping) {
-
-            $('#id_SupportedExchangeList').append("<li>" + exchange + "</li>");
+            if(!(exchange === 'Binance_Deposit' || exchange === 'Binance_Withdraw' || exchange === 'Coinbase_Tax' || exchange === 'Coinbase_Tax_Buys' || exchange === 'Coinbase_Tax_Sells')){
+                $('#id_SupportedExchangeList').append("<li>" + exchange + "</li>");
+            }
         }
 
         $('#id_btn_convert').on("click", function () {
@@ -187,7 +188,14 @@
                     //debugger;
                     gLoadedData[exchange] = FinalData;
 
-                    $('#id_Detected').append("<li>" + exchange + "</li>");
+                    if(exchange === 'Coinbase_Tax'){
+                        $('#id_Detected').append("<li>Coinbase_Tax_Buys</li>");
+                        $('#id_Detected').append("<li>Coinbase_Tax_Sells</li>");
+
+                    }else{
+                        $('#id_Detected').append("<li>" + exchange + "</li>");
+                    }
+
                     $('#id_DetectedExchangeDiv').show();
                     $('#id_ConvertButtons').hide();
                 };

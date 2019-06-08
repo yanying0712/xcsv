@@ -28,9 +28,14 @@ var exchangeData = {};
         detect : function ( pContent ) {
             var csvdata = $.csv.toObjects(pContent);
             // for Coinbase
-            var pContent_Coinbase = ((pContent.split('\n')).splice(3)).join('\n');
+            var csvdata_Coinbase = $.csv.toObjects(pContent);
 
-            var csvdata_Coinbase = $.csv.toObjects(pContent_Coinbase);
+            if(csvdata.length > 3){
+                var pContent_Coinbase = ((pContent.split('\n')).splice(3)).join('\n');
+
+                csvdata_Coinbase = $.csv.toObjects(pContent_Coinbase);
+            }
+
 
             for (var exchange in exchangeMapping) {
                 var Matches = 0, NoMatch = 0;
@@ -42,8 +47,9 @@ var exchangeData = {};
                     else
                         ++NoMatch;
                 }
-                if(Matches == Columns.length)
+                if(Matches == Columns.length){
                     return exchange;
+                }
             }
 
             for (var exchange in exchangeMapping) {
@@ -68,7 +74,7 @@ var exchangeData = {};
         },
 
         convert: function (pContent, pExchange) {
-
+            // pContent = pContent.replace(/([^;])\n/g, ' ');
             var exchange = exchangeMapping[pExchange];
 
             if (typeof exchange['_RenameCSVColumns'] !== "undefined") {
@@ -82,9 +88,9 @@ var exchangeData = {};
                 var pContent_Coinbase = ((pContent.split('\n')).splice(3)).join('\n');
 
                 csvdata= $.csv.toObjects(pContent_Coinbase);
+
                 csvdata.map(item => {
-                    item["Notes"] = item["Notes"].replace('\n\n',' ');
-                    item["Notes"] = item["Notes"].replace(',', ' ');
+                    item["Notes"] = item["Notes"].replace(/\r?\n|\r|,/g, ' ');
                 });
 
             }else if(pExchange === 'Gemini'){
