@@ -401,14 +401,17 @@ var exchangeMapping = {
         },
         "Type":     function(pSource) { return pSource["Type"].toUpperCase(); },
         "Exchange": function(pSource) { return "Poloniex"; },
-        "Base amount":   function(pSource) { return pSource["Price"]; },
+        "Base amount":   function(pSource) { return pSource["Total"]; },
         "Base currency": function(pSource) { return pSource['Market'].split('/')[1] },
 
         "Quote amount":     function(pSource) { return pSource['Amount'] },
         "Quote currency":   function(pSource) { return pSource['Market'].split('/')[0] },
 
-        "Fee":              function(pSource) { return ""; },
-        "Fee currency":     function(pSource) { return ""; },
+        "Fee":              function(pSource) {
+            var fee = pSource["Total"]*(pSource["Fee"].replace('%',"")/100);
+            return fee;
+        },
+        "Fee currency":     function(pSource) { return pSource['Market'].split('/')[1]; },
 
         "Costs/Proceeds":          function(pSource) { return ""; },
         "Costs/Proceeds currency": function(pSource) { return ""; },
