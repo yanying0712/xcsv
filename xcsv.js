@@ -44,7 +44,7 @@ var exchangeData = {};
                 }
                 if(Matches == Columns.length)
                     return exchange;
-            };
+            }
 
             for (var exchange in exchangeMapping) {
                 var Matches = 0, NoMatch = 0;

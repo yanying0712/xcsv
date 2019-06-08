@@ -412,7 +412,6 @@ var exchangeMapping = {
             return fee;
         },
         "Fee currency":     function(pSource) { return pSource['Market'].split('/')[1]; },
-
         "Costs/Proceeds":          function(pSource) { return ""; },
         "Costs/Proceeds currency": function(pSource) { return ""; },
         "Sync holdings":           function(pSource) { return ""; },
