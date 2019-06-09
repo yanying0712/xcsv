@@ -38,7 +38,10 @@ var exchangeMapping = {
         // NOTE: The base currency is always last on binance pairs,
         //       however Delta expects the pairs in this format
         "_KnownCSVColumns": function(pSource) { return "Date(UTC),Market,Type,Price,Amount,Total,Fee,Fee Coin".split(","); },
-        "Date":     function(pSource) { return pSource["Date(UTC)"]; },
+        "Date":     function(pSource) {
+            var a = moment(pSource["Date(UTC)"], "YYYY-MM-DD hh:mm aa");
+            return a.utc().format("YYYY-MM-DD hh:mm:ss Z");
+        },
         "Type":     function(pSource) { return pSource["Type"].toUpperCase(); },
         "Exchange": function(pSource) { return "Binance"; },
 
@@ -101,11 +104,24 @@ var exchangeMapping = {
         "Notes":                   function(pSource) { return ""; }
     },
 
-    "Binance_Deposit": {
+    "Binance_Deposit_Widhdraw": {
         "_KnownCSVColumns": function(pSource)  { return "Date,Coin,Amount,TransactionFee,Address,TXID,SourceAddress,PaymentID,Status".split(","); },
 
-        "Date":     function(pSource) { return pSource["Date"]; },
-        "Type":     function(pSource) { return 'DEPOSIT'; },
+        "Date": function(pSource) {
+            var a = moment(pSource['Date'], "YYYY-MM-DD hh:mm:ss aa");
+            return a.utc().format("YYYY-MM-DD hh:mm:ss Z");
+        },
+
+        "Type":     function(pSource) {
+            switch(guessFilename){
+                case 'deposit':
+                    return 'DEPOSIT';
+                case 'withdraw':
+                    return 'WITHDRAW';
+                default:
+                    return 'DEPOSIT';
+            }
+        },
         "Exchange": function(pSource) { return "Binance"; },
         "Base amount":   function(pSource) { return pSource["Amount"]; },
         "Base currency": function(pSource) { return pSource["Coin"]; },
@@ -119,31 +135,26 @@ var exchangeMapping = {
         "Costs/Proceeds":          function(pSource) { return ""; },
         "Costs/Proceeds currency": function(pSource) { return ""; },
         "Sync Holdings":           function(pSource) { return ""; },
-        "Sent/Received from":      function(pSource) { return "Other_Wallet"; },
-        "Sent to":                 function(pSource) { return "My_Wallet"; },
-        "Notes":                   function(pSource) { return ""; }
-    },
-
-    "Binance_Withdraw": {
-        "_KnownCSVColumns": function(pSource)  { return "Date,Coin,Amount,TransactionFee,Address,TXID,SourceAddress,PaymentID,Status".split(","); },
-
-        "Date":     function(pSource) { return pSource["Date"]; },
-        "Type":     function(pSource) { return 'WITHDRAW'; },
-        "Exchange": function(pSource) { return "Binance"; },
-        "Base amount":   function(pSource) { return pSource["Amount"]; },
-        "Base currency": function(pSource) { return pSource["Coin"]; },
-
-        "Quote amount":     function(pSource) { return ''; },
-        "Quote currency":   function(pSource) { return ''; },
-
-        "Fee":              function(pSource) { return pSource['TransactionFee']; },
-        "Fee currency":     function(pSource) { return pSource['Coin']; },
-
-        "Costs/Proceeds":          function(pSource) { return ""; },
-        "Costs/Proceeds currency": function(pSource) { return ""; },
-        "Sync Holdings":           function(pSource) { return ""; },
-        "Sent/Received from":      function(pSource) { return "My_Wallet"; },
-        "Sent to":                 function(pSource) { return "Other_Wallet"; },
+        "Sent/Received from":      function(pSource) {
+            switch(guessFilename){
+                case 'deposit':
+                    return 'Other_Wallet';
+                case 'withdraw':
+                    return 'My_Wallet';
+                default:
+                    return 'Other_Wallet';
+            }
+          },
+        "Sent to":                 function(pSource) {
+            switch(guessFilename){
+                case 'deposit':
+                    return 'My_Wallet';
+                case 'withdraw':
+                    return 'Other_Wallet';
+                default:
+                    return 'My_Wallet';
+            }
+        },
         "Notes":                   function(pSource) { return ""; }
     },
 
@@ -543,7 +554,6 @@ var exchangeMapping = {
 
         "Date":     function(pSource) {
             var date = pSource["Date"] + " " + pSource["Time (UTC)"];
-            console.log('date:', date);
             var a = moment(date, "YYYY-MM-DD hh:mm aa");
             return a.utc().format("YYYY-MM-DD hh:mm:ss Z");
             },

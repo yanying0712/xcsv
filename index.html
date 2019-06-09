@@ -140,11 +140,13 @@
         var gLoadedData = [];
         var gConvertedData = "";
         var gOriginalFilename = "";
+        var guessAllFilename = [];
+        var guessFilename = '';
 
         $('body').xcsv();
 
-        for (var exchange in exchangeMapping) {
-            if(!(exchange === 'Binance_Deposit' || exchange === 'Binance_Withdraw' || exchange === 'Coinbase_Tax' || exchange === 'Coinbase_Tax_Buys' || exchange === 'Coinbase_Tax_Sells')){
+        for (var exchange in exchangeMapping){
+            if(!(exchange === 'Binance_Deposit_Widhdraw')){
                 $('#id_SupportedExchangeList').append("<li>" + exchange + "</li>");
             }
         }
@@ -152,13 +154,16 @@
         $('#id_btn_convert').on("click", function () {
 
             gConvertedData = $('body').xcsv("csvheader") + "\n";
-
-            for (var key in gLoadedData) {
-                var exchange = $('body').xcsv("detect", gLoadedData[key]);
-                gConvertedData += $('body').xcsv("convert", gLoadedData[key], exchange);
-                gConvertedData += "\n";
-            }
-
+            gLoadedData.map(row => {
+                for (var key in row) {
+                    var exchange = $('body').xcsv("detect", row[key]);
+                    if(exchange === 'Binance_Deposit_Widhdraw'){
+                        guessFilename = guessAllFilename.shift();
+                    }
+                    gConvertedData += $('body').xcsv("convert", row[key], exchange);
+                    gConvertedData += "\n";
+                }
+            });
             $('#id_ConvertButtons').show();
         });
 
@@ -185,13 +190,21 @@
                     FinalData = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]);
 
                     var exchange = $('body').xcsv("detect", FinalData);
+
+                    if(exchange === 'Binance_Deposit_Widhdraw'){
+                        if(gOriginalFilename.includes('Withdraw')){
+                            guessAllFilename.push('withdraw');
+                        }else if(gOriginalFilename.includes('Deposit')){
+                            guessAllFilename.push('deposit');
+                        }
+                    }
                     //debugger;
-                    gLoadedData[exchange] = FinalData;
+                    var temp = {};
+                    temp[exchange] = FinalData;
+                    gLoadedData.push(temp);
 
-                    if(exchange === 'Coinbase_Tax'){
-                        $('#id_Detected').append("<li>Coinbase_Tax_Buys</li>");
-                        $('#id_Detected').append("<li>Coinbase_Tax_Sells</li>");
-
+                    if(exchange === 'Binance_Deposit_Widhdraw'){
+                        $('#id_Detected').append("<li>Binance</li>");
                     }else{
                         $('#id_Detected').append("<li>" + exchange + "</li>");
                     }
@@ -211,7 +224,6 @@
             $('#id_Detected').text("");
 
             for (var i = 0, file; file = files[i]; i++) {
-
                 handleFile(file);
             }
 

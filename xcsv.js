@@ -74,7 +74,6 @@ var exchangeData = {};
         },
 
         convert: function (pContent, pExchange) {
-            // pContent = pContent.replace(/([^;])\n/g, ' ');
             var exchange = exchangeMapping[pExchange];
 
             if (typeof exchange['_RenameCSVColumns'] !== "undefined") {
@@ -93,10 +92,12 @@ var exchangeData = {};
                     item["Notes"] = item["Notes"].replace(/\r?\n|\r|,/g, ' ');
                 });
 
-            }else if(pExchange === 'Gemini'){
+            }
+            else if(pExchange === 'Gemini'){
                 csvdata = $.csv.toObjects(pContent);
                 csvdata.pop();
-            }else{
+            }
+            else{
                 csvdata = $.csv.toObjects(pContent);
             }
 
