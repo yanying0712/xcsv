@@ -87,6 +87,7 @@
         </div>
         <br/>
 
+
         <div class="row justify-content-md-center">
 
             <div class="">
@@ -187,7 +188,8 @@
 
                     data = new Uint8Array(e.target.result);
                     wb = XLSX.read(data, { type: 'array', raw: 'true' });
-                    FinalData = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]);
+                    var FinalData = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]);
+                     FinalData = FinalData.replace(/[\u200B-\u200D\uFEFF]/g, '');
 
                     var exchange = $('body').xcsv("detect", FinalData);
 

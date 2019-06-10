@@ -478,7 +478,10 @@ var exchangeMapping = {
         "Base amount":   function(pSource) { return pSource["AMOUNT"]; },
         "Base currency": function(pSource) { return pSource['PAIR'].split('/')[0] },
 
-        "Quote amount":     function(pSource) { return pSource['PRICE'] },
+        "Quote amount":     function(pSource) {
+            var quote = Math.abs(pSource['AMOUNT']*pSource['PRICE']);
+            return  quote;
+            },
         "Quote currency":   function(pSource) { return pSource['PAIR'].split('/')[1] },
 
         "Fee":              function(pSource) { return pSource['FEE']; },
@@ -498,17 +501,17 @@ var exchangeMapping = {
         "Date":     function(pSource) { return pSource["created at"]; },
         "Type":     function(pSource) { return pSource["side"].toUpperCase(); },
         "Exchange": function(pSource) { return "Coinbase Pro"; },
-        "Base amount":   function(pSource) { return pSource["price"]; },
+        "Base amount":   function(pSource) { return pSource["size"]; },
         "Base currency": function(pSource) { return pSource['product'].split('-')[0] },
 
-        "Quote amount":     function(pSource) { return pSource['size'] },
+        "Quote amount":     function(pSource) { return Math.abs(pSource['total']) },
         "Quote currency":   function(pSource) { return pSource['product'].split('-')[1] },
 
         "Fee":              function(pSource) { return pSource['fee']; },
         "Fee currency":     function(pSource) { return pSource['product'].split('-')[1] },
 
-        "Costs/Proceeds":          function(pSource) { return pSource['total']; },
-        "Costs/Proceeds currency": function(pSource) { return pSource['proce/fee/total unit']; },
+        "Costs/Proceeds":          function(pSource) { return '' },
+        "Costs/Proceeds currency": function(pSource) { return ''; },
         "Sync Holdings":           function(pSource) { return ""; },
         "Sent/Received from":      function(pSource) { return ""; },
         "Sent to":                 function(pSource) { return ""; },
@@ -530,10 +533,10 @@ var exchangeMapping = {
         },
         "Type":     function(pSource) { return pSource["Type"].toUpperCase(); },
         "Exchange": function(pSource) { return "Poloniex"; },
-        "Base amount":   function(pSource) { return pSource["Total"]; },
+        "Base amount":   function(pSource) { return pSource["Amount"]; },
         "Base currency": function(pSource) { return pSource['Market'].split('/')[1] },
 
-        "Quote amount":     function(pSource) { return pSource['Amount'] },
+        "Quote amount":     function(pSource) { return pSource['Total'] },
         "Quote currency":   function(pSource) { return pSource['Market'].split('/')[0] },
 
         "Fee":              function(pSource) {
@@ -689,24 +692,142 @@ var exchangeMapping = {
         },
         "Notes":                   function(pSource) { return ""; }
     },
+
+    "OKEX" : {
+        "_KnownCSVColumns": function(pSource)  { return "tradingTime,type,price,size,balance,fee,symbol".split(","); },
+
+        "Date":     function(pSource) {
+            var a = moment(pSource["tradingTime"], "YYYY-MM-DD hh:mm aa");
+            return a.utc().format("YYYY-MM-DD hh:mm:ss Z");
+        },
+        "Type":     function(pSource) {
+            var type = pSource['type'];
+            switch(type){
+                case 'Sell':
+                    return 'SELL';
+                case 'Buy':
+                    return 'BUY';
+                case 'To margin':
+                    return 'WITHDRAW';
+                case 'From margin':
+                    return 'DEPOSIT';
+                case 'To Fund':
+                    return 'WITHDRAW';
+                case 'From Fund':
+                    return 'DEPOSIT';
+                case 'To wallet':
+                    return 'WITHDRAW';
+                case 'From wallet':
+                    return 'DEPOSIT';
+                default:
+                    return '';
+            }
+        },
+        "Exchange": function(pSource) { return "OKEX"; },
+        "Base amount":   function(pSource) { return Math.abs(pSource["size"]); },
+        "Base currency": function(pSource) { return pSource["symbol"]; },
+
+        "Quote amount":     function(pSource) {
+            var quote = Math.abs(pSource['price']*pSource['size']);
+            var type = pSource['type'];
+            switch(type){
+                case 'To margin':
+                    return '';
+                case 'From margin':
+                    return '';
+                case 'To Fund':
+                    return '';
+                case 'From Fund':
+                    return '';
+                case 'To wallet':
+                    return '';
+                case 'From wallet':
+                    return '';
+                default:
+                    return quote;
+            }
+        },
+        "Quote currency":   function(pSource) {
+            var type = pSource['type'];
+            switch(type){
+                case 'To margin':
+                    return '';
+                case 'From margin':
+                    return '';
+                case 'To Fund':
+                    return '';
+                case 'From Fund':
+                    return '';
+                case 'To wallet':
+                    return '';
+                case 'From wallet':
+                    return '';
+                default:
+                    return "USDT";
+            }
+            },
+
+        "Fee":              function(pSource) { return pSource['fee']; },
+        "Fee currency":     function(pSource) { return pSource['symbol']; },
+
+        "Costs/Proceeds":          function(pSource) { return ""; },
+        "Costs/Proceeds currency": function(pSource) { return ""; },
+        "Sync Holdings":           function(pSource) { return ""; },
+        "Sent/Received from":      function(pSource) {
+            var type = pSource['type'];
+            switch(type){
+                case 'To margin':
+                    return 'My_Wallet';
+                case 'From margin':
+                    return 'Other_Wallet';
+                case 'To Fund':
+                    return 'My_Wallet';
+                case 'From Fund':
+                    return 'Other_Wallet';
+                case 'To wallet':
+                    return 'My_Wallet';
+                case 'From wallet':
+                    return 'Other_Wallet';
+                default:
+                    return "";
+            }
+        },
+        "Sent to":                 function(pSource) {
+            var type = pSource['type'];
+            switch(type){
+                case 'To margin':
+                    return 'Other_Wallet';
+                case 'From margin':
+                    return 'My_Wallet';
+                case 'To Fund':
+                    return 'Other_Wallet';
+                case 'From Fund':
+                    return 'My_Wallet';
+                case 'To wallet':
+                    return 'Other_Wallet';
+                case 'From wallet':
+                    return 'My_Wallet';
+                default:
+                    return "";
+            }
+        },
+        "Notes":                   function(pSource) { return ""; }
+    },
+
+    // 'CoinTracking': {
+    //     "_KnownCSVColumns": function(pSource)  { return "Amount,Currency,Date Acquired,Date Sold,Short/Long,Buy /Input at,Sell /Output at,Proceeds in AUD,Cost Basis in AUD,Gain/Loss in AUD".split(","); },
     //
-    // 'BTCMarkets_1': {
-    //     "_KnownCSVColumns": function(pSource)  { return "tradeCreatedAt, creationTime, action, currency,amount,description,balance,referenceId".split(","); },
+    //     "Date":     function(pSource) { return pSource["Time"]; },
+    //     "Type":     function(pSource) { return pSource["Sell/Buy"].toUpperCase(); },
+    //     "Exchange": function(pSource) { return "CoinTracking"; },
+    //     "Base amount":   function(pSource) { return pSource["Amount"]; },
+    //     "Base currency": function(pSource) { return pSource["Amount-Coin"]; },
     //
-    //     "Date":     function(pSource) {
-    //         var a = moment(pSource['creationTime'], "YYYY-MM-DD hh:mm aa");
-    //         return a.utc().format("YYYY-MM-DD hh:mm:ss Z");
-    //     },
-    //     "Type":     function(pSource) { return pSource["action"].toUpperCase(); },
-    //     "Exchange": function(pSource) { return "BTCMarkets"; },
-    //     "Base amount":   function(pSource) { return pSource["funds"]; },
-    //     "Base currency": function(pSource) { return pSource['symbol'].split('-')[1] },
+    //     "Quote amount":     function(pSource) { return pSource['Filled Price']; },
+    //     "Quote currency":   function(pSource) { return pSource['Price-Coin']; },
     //
-    //     "Quote amount":     function(pSource) { return pSource['size'] },
-    //     "Quote currency":   function(pSource) { return pSource['symbol'].split('-')[0] },
-    //
-    //     "Fee":              function(pSource) { return pSource['fee']; },
-    //     "Fee currency":     function(pSource) { return pSource['symbol'].split('-')[1] },
+    //     "Fee":              function(pSource) { return pSource['Fee']; },
+    //     "Fee currency":     function(pSource) { return pSource['Fee-Coin']; },
     //
     //     "Costs/Proceeds":          function(pSource) { return ""; },
     //     "Costs/Proceeds currency": function(pSource) { return ""; },
@@ -716,5 +837,28 @@ var exchangeMapping = {
     //     "Notes":                   function(pSource) { return ""; }
     // },
 
+    // 'CoinJar': {
+    //     "_KnownCSVColumns": function(pSource)  { return "Uuid,Transacted at,Account,Amount formatted,Amount currency,Amount decimal,Description,Pending,Destination amount,Quote,Fees".split(","); },
+    //
+    //     "Date":     function(pSource) { return pSource["Transacted at"].split(' ').splice(0,2).join(' ') },
+    //     "Type":     function(pSource) { return pSource["Sell/Buy"].toUpperCase(); },
+    //     "Exchange": function(pSource) { return "CoinTracking"; },
+    //     "Base amount":   function(pSource) { return pSource["Amount"]; },
+    //     "Base currency": function(pSource) { return pSource["Amount-Coin"]; },
+    //
+    //     "Quote amount":     function(pSource) { return pSource['Filled Price']; },
+    //     "Quote currency":   function(pSource) { return pSource['Price-Coin']; },
+    //
+    //     "Fee":              function(pSource) { return pSource['Fee']; },
+    //     "Fee currency":     function(pSource) { return pSource['Fee-Coin']; },
+    //
+    //     "Costs/Proceeds":          function(pSource) { return ""; },
+    //     "Costs/Proceeds currency": function(pSource) { return ""; },
+    //     "Sync Holdings":           function(pSource) { return ""; },
+    //     "Sent/Received from":      function(pSource) { return ""; },
+    //     "Sent to":                 function(pSource) { return ""; },
+    //     "Notes":                   function(pSource) { return ""; }
+    // },
 
+    // 'Houbi': {}
 };

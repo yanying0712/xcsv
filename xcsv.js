@@ -36,17 +36,19 @@ var exchangeData = {};
                 csvdata_Coinbase = $.csv.toObjects(pContent_Coinbase);
             }
 
-
             for (var exchange in exchangeMapping) {
+
                 var Matches = 0, NoMatch = 0;
                 var Columns = exchangeMapping[exchange]._KnownCSVColumns();
 
                 for(var KnownColumn in Columns) {
+
                     if(csvdata[0][Columns[KnownColumn]] !== undefined || csvdata_Coinbase[0][Columns[KnownColumn]] !== undefined)
                         ++Matches;
                     else
                         ++NoMatch;
                 }
+
                 if(Matches == Columns.length){
                     return exchange;
                 }
