@@ -147,7 +147,7 @@
         $('body').xcsv();
 
         for (var exchange in exchangeMapping){
-            if(!(exchange === 'Binance_Deposit_Widhdraw')){
+            if(!(exchange === 'Binance_Deposit_Widhdraw' || exchange == 'CoinTracking_closeing_Position' || exchange == 'Kraken_legers')){
                 $('#id_SupportedExchangeList').append("<li>" + exchange + "</li>");
             }
         }
@@ -205,10 +205,19 @@
                     temp[exchange] = FinalData;
                     gLoadedData.push(temp);
 
-                    if(exchange === 'Binance_Deposit_Widhdraw'){
-                        $('#id_Detected').append("<li>Binance</li>");
-                    }else{
-                        $('#id_Detected').append("<li>" + exchange + "</li>");
+                    switch(exchange){
+                        case 'Binance_Deposit_Widhdraw':
+                            $('#id_Detected').append("<li>Binance</li>");
+                            break;
+                        case 'CoinTracking_closeing_Position':
+                            $('#id_Detected').append("<li>CoinTracking</li>");
+                            break;
+                        case 'Kraken_legers':
+                            $('#id_Detected').append("<li>Kraken</li>");
+                            break;
+                        default:
+                            $('#id_Detected').append("<li>" + exchange + "</li>");
+                            break;
                     }
 
                     $('#id_DetectedExchangeDiv').show();

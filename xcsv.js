@@ -37,7 +37,6 @@ var exchangeData = {};
             }
 
             for (var exchange in exchangeMapping) {
-
                 var Matches = 0, NoMatch = 0;
                 var Columns = exchangeMapping[exchange]._KnownCSVColumns();
 
@@ -89,11 +88,6 @@ var exchangeData = {};
                 var pContent_Coinbase = ((pContent.split('\n')).splice(3)).join('\n');
 
                 csvdata= $.csv.toObjects(pContent_Coinbase);
-
-                csvdata.map(item => {
-                    item["Notes"] = item["Notes"].replace(/\r?\n|\r|,/g, ' ');
-                });
-
             }
             else if(pExchange === 'Gemini'){
                 csvdata = $.csv.toObjects(pContent);
@@ -121,9 +115,10 @@ var exchangeData = {};
                         console.warn("Column " + DeltaOutput[Column] + " Not managed");
                     }
                 }
-            // it will be not pushed if the "Amount" of result equal "0";
-                if(!(result[3] == 0))
-                    results.push(result.join(","));
+            // it will be not pushed if the "Base Amount" and "Quote Amount" of result equal "0";
+                if(!(result[3] === 0))
+                    if(!((result[5] == 0 && result[6]) || result[4] == 'STR'))
+                        results.push(result.join(","));
             }
             return results.join('\n');
         }
