@@ -121,8 +121,9 @@ var exchangeData = {};
                         console.warn("Column " + DeltaOutput[Column] + " Not managed");
                     }
                 }
-
-                results.push(result.join(","));
+            // it will be not pushed if the "Amount" of result equal "0";
+                if(!(result[3] == 0))
+                    results.push(result.join(","));
             }
             return results.join('\n');
         }

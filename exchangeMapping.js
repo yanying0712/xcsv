@@ -837,28 +837,158 @@ var exchangeMapping = {
     //     "Notes":                   function(pSource) { return ""; }
     // },
 
-    // 'CoinJar': {
-    //     "_KnownCSVColumns": function(pSource)  { return "Uuid,Transacted at,Account,Amount formatted,Amount currency,Amount decimal,Description,Pending,Destination amount,Quote,Fees".split(","); },
-    //
-    //     "Date":     function(pSource) { return pSource["Transacted at"].split(' ').splice(0,2).join(' ') },
-    //     "Type":     function(pSource) { return pSource["Sell/Buy"].toUpperCase(); },
-    //     "Exchange": function(pSource) { return "CoinTracking"; },
-    //     "Base amount":   function(pSource) { return pSource["Amount"]; },
-    //     "Base currency": function(pSource) { return pSource["Amount-Coin"]; },
-    //
-    //     "Quote amount":     function(pSource) { return pSource['Filled Price']; },
-    //     "Quote currency":   function(pSource) { return pSource['Price-Coin']; },
-    //
-    //     "Fee":              function(pSource) { return pSource['Fee']; },
-    //     "Fee currency":     function(pSource) { return pSource['Fee-Coin']; },
-    //
-    //     "Costs/Proceeds":          function(pSource) { return ""; },
-    //     "Costs/Proceeds currency": function(pSource) { return ""; },
-    //     "Sync Holdings":           function(pSource) { return ""; },
-    //     "Sent/Received from":      function(pSource) { return ""; },
-    //     "Sent to":                 function(pSource) { return ""; },
-    //     "Notes":                   function(pSource) { return ""; }
-    // },
+    'CoinJar': {
+        "_KnownCSVColumns": function(pSource)  { return "Uuid,Transacted at,Account,Amount formatted,Amount currency,Amount decimal,Description,Pending,Destination amount,Quote,Fees".split(","); },
+
+        "Date":     function(pSource) {
+            var temp = pSource["Transacted at"].split(' ').splice(0,2).join(' ');
+            var a = moment(temp, "YYYY-MM-DD hh:mm aa");
+            var date = a.utc().format("YYYY-MM-DD hh:mm:ss Z");
+            return date;
+            },
+        "Type":     function(pSource) {
+            var amount = pSource['Amount decimal'];
+            // var quote = pSource['Quote'];
+            // var currency = pSource['Amount currency'];
+            if(amount > 0){
+                return 'DEPOSIT';
+            }else{
+                return 'WITHDRAW';
+            }
+            // if(currency == 'AUD' || currency == 'USD' || currency == 'GBP' || currency == 'EUR'){
+            //     if(amount > 0){
+            //         if(quote)
+            //             return 'SELL';
+            //         else
+            //             return 'DEPOSIT';
+            //     }else{
+            //         if(quote)
+            //             return 'BUY';
+            //         else
+            //             return 'WITHDRAW';
+            //     }
+            // }else{
+            //     if(amount > 0){
+            //         if(quote)
+            //             return 'BUY';
+            //         else
+            //             return 'DEPOSIT';
+            //     }else{
+            //         if(quote)
+            //             return 'SELL';
+            //         else
+            //             return 'WITHDRAW';
+            //     }
+            // }
+            // return '';
+        },
+        "Exchange": function(pSource) { return "CoinJar"; },
+        "Base amount":   function(pSource) {
+            // var quote = pSource['Quote'];
+            // if(quote){
+            //     var amount = pSource['Destination amount'].split(' ').splice(2);
+            //     console.log(amount);
+            //     return amount[0].replace(/[^0-9.-]/g, '').replace(/(\..*)\./g, '$1').replace(/(?!^)-/g, '');
+            // }else{
+            //     return Math.abs(pSource['Amount decimal']);
+            // }
+            return Math.abs(pSource['Amount decimal']);
+
+        },
+        "Base currency": function(pSource) {
+            // var quote = pSource['Quote'];
+            // if(quote){
+            //     var currency = (quote.split(' ').splice(0,1))[0].slice(0,3);
+            //     return currency;
+            // }else{
+            //     return pSource["Amount currency"];
+            // }
+            return pSource["Amount currency"];
+        },
+
+        "Quote amount":     function(pSource) {
+            // var quote = pSource['Quote'];
+            // if(quote){
+            //     return Math.abs(pSource['Amount decimal']);
+            // }else{
+            //     return '';
+            // }
+            return '';
+        },
+        "Quote currency":   function(pSource) {
+            // var quote = pSource['Quote'];
+            // if(quote){
+            //    return pSource["Amount currency"];
+            // }else{
+            //     return ''
+            // }
+            return '';
+        },
+
+        "Fee":              function(pSource) { return pSource['Fees']; },
+        "Fee currency":     function(pSource) {
+            if (pSource['Fees'])
+                return pSource["Amount currency"];
+            else
+                return '';
+        },
+
+        "Costs/Proceeds":          function(pSource) { return ""; },
+        "Costs/Proceeds currency": function(pSource) { return ""; },
+        "Sync Holdings":           function(pSource) { return ""; },
+        "Sent/Received from":      function(pSource) {
+            var amount = pSource['Amount decimal'];
+            var quote = pSource['Quote'];
+            var currency = pSource['Amount currency'];
+            if(currency == 'AUD' || currency == 'USD' || currency == 'GBP' || currency == 'EUR'){
+                if(amount > 0){
+                    // if(!quote)
+                        return 'Other_Wallet';
+                }else{
+                    // if(!quote)
+                        return 'My_Wallet';
+                }
+            }else{
+                if(amount > 0){
+                    // if(!quote)
+                        return 'Other_Wallet';
+                }else{
+                    // if(!quote)
+                        return 'My_Wallet';
+                }
+            }
+            return '';
+        },
+        "Sent to":                 function(pSource) {
+            var amount = pSource['Amount decimal'];
+            var quote = pSource['Quote'];
+            var currency = pSource['Amount currency'];
+            if(currency == 'AUD' || currency == 'USD' || currency == 'GBP' || currency == 'EUR'){
+                if(amount > 0){
+                    // if(!quote)
+                        return 'My_Wallet';
+                }else{
+                    // if(!quote)
+                        return 'Other_Wallet';
+                }
+            }else{
+                if(amount > 0){
+                    // if(!quote)
+                        return 'My_Wallet';
+                }else{
+                    // if(!quote)
+                        return 'Other_Wallet';
+                }
+            }
+            return '';
+        },
+        "Notes":                   function(pSource) {
+            var des = pSource['Description'];
+            des = des.replace(/\r?\n|\r|,/g, ' ');
+            return des;
+
+        }
+    },
 
     // 'Houbi': {}
 };
