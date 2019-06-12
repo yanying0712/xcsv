@@ -212,7 +212,7 @@ var exchangeMapping = {
         "_KnownCSVColumns": function(pSource)  { return "tradeCreatedAt,symbol,side,price,size,funds,fee,".split(","); },
 
         "Date":     function(pSource) {
-            date = moment(pSource['tradeCreatedAt'], "YYYY-MM-DD, hh:mm aa");
+            date = moment(pSource['tradeCreatedAt'], "DD/MM/YYYY, hh:mm aa");
             return date.utc().format("YYYY-MM-DD hh:mm:ss Z");
         },
         "Type":     function(pSource) { return pSource["side"].toUpperCase(); },
@@ -336,6 +336,12 @@ var exchangeMapping = {
 
         "Fee":              function(pSource) { return pSource['Fee'].split(' ')[0]; },
         "Fee currency": function(pSource) { return pSource['Fee'].split(' ')[1] },
+        "Costs/Proceeds":          function(pSource) { return ""; },
+        "Costs/Proceeds currency": function(pSource) { return ""; },
+        "Sync Holdings":           function(pSource) { return ""; },
+        "Sent/Received from":      function(pSource) { return ""; },
+        "Sent to":                 function(pSource) { return ""; },
+        "Notes":                   function(pSource) { return ""; }
     },
 
     "Coinbase": {
@@ -428,57 +434,6 @@ var exchangeMapping = {
         "Notes":                   function(pSource) { return pSource["Notes"].replace(/\r?\n|\r|,/g, ' '); }
 
     },
-    //
-    // "Coinbase_Tax": {
-    //     "_KnownCSVColumns": function(pSource)  { return "Received Transaction ID,Received Date,Received Description,Cost Basis (USD),Sent Transaction ID,Sent Date,Sent Description,Sent Price Per Coin (USD),Sent Total (USD),Gains / Losses,Short / Long Term Capital Gains".split(","); },
-    // },
-    //
-    // "Coinbase_Tax_Buys": {
-    //     // "_KnownCSVColumns": function(pSource)  { return "Received Transaction ID,Received Date,Received Description,Cost Basis (USD)".split(","); },
-    //
-    //     "Date":     function(pSource) { return pSource["Time"]; },
-    //     "Type":     function(pSource) { return pSource["Sell/Buy"].toUpperCase(); },
-    //     "Exchange": function(pSource) { return "KuCoin"; },
-    //     "Base amount":   function(pSource) { return pSource["Amount"]; },
-    //     "Base currency": function(pSource) { return pSource["Amount-Coin"]; },
-    //
-    //     "Quote amount":     function(pSource) { return pSource['Filled Price']; },
-    //     "Quote currency":   function(pSource) { return pSource['Price-Coin']; },
-    //
-    //     "Fee":              function(pSource) { return pSource['Fee']; },
-    //     "Fee currency":     function(pSource) { return pSource['Fee-Coin']; },
-    //
-    //     "Costs/Proceeds":          function(pSource) { return ""; },
-    //     "Costs/Proceeds currency": function(pSource) { return ""; },
-    //     "Sync Holdings":           function(pSource) { return ""; },
-    //     "Sent/Received from":      function(pSource) { return ""; },
-    //     "Sent to":                 function(pSource) { return ""; },
-    //     "Notes":                   function(pSource) { return ""; }
-    // },
-    //
-    // "Coinbase_Tax_Sells": {
-    //
-    //     // "_KnownCSVColumns": function(pSource)  { return "Sent Transaction ID,Sent Date,Sent Description,Sent Price Per Coin (USD),Sent Total (USD),Gains / Losses,Short / Long Term Capital Gains".split(","); },
-    //
-    //     "Date":     function(pSource) { return pSource["Time"]; },
-    //     "Type":     function(pSource) { return pSource["Sell/Buy"].toUpperCase(); },
-    //     "Exchange": function(pSource) { return "KuCoin"; },
-    //     "Base amount":   function(pSource) { return pSource["Amount"]; },
-    //     "Base currency": function(pSource) { return pSource["Amount-Coin"]; },
-    //
-    //     "Quote amount":     function(pSource) { return pSource['Filled Price']; },
-    //     "Quote currency":   function(pSource) { return pSource['Price-Coin']; },
-    //
-    //     "Fee":              function(pSource) { return pSource['Fee']; },
-    //     "Fee currency":     function(pSource) { return pSource['Fee-Coin']; },
-    //
-    //     "Costs/Proceeds":          function(pSource) { return ""; },
-    //     "Costs/Proceeds currency": function(pSource) { return ""; },
-    //     "Sync Holdings":           function(pSource) { return ""; },
-    //     "Sent/Received from":      function(pSource) { return ""; },
-    //     "Sent to":                 function(pSource) { return ""; },
-    //     "Notes":                   function(pSource) { return ""; }
-    // },
 
     "Bitfinex": {
         "_KnownCSVColumns": function(pSource)  { return "#,PAIR,AMOUNT,PRICE,FEE,FEE CURRENCY,DATE,ORDER ID".split(","); },
@@ -505,8 +460,8 @@ var exchangeMapping = {
         "Base currency": function(pSource) { return pSource['PAIR'].split('/')[0] },
 
         "Quote amount":     function(pSource) {
-            var quote = Math.abs((pSource['AMOUNT']*pSource['PRICE']).replace(/,/g, ''));
-            return  quote;
+            var quote = Math.abs(pSource['AMOUNT']*pSource['PRICE']);
+            return  quote.toString().replace(/,/g, '');
             },
         "Quote currency":   function(pSource) { return pSource['PAIR'].split('/')[1] },
 
@@ -523,8 +478,10 @@ var exchangeMapping = {
 
     "Coinbase Pro": {
         "_KnownCSVColumns": function(pSource)  { return "trade id,product,side,created at,size,size unit,price,fee,total,proce/fee/total unit".split(","); },
-
-        "Date":     function(pSource) { return pSource["created at"]; },
+        "Date":     function(pSource) {
+            date = moment(pSource['created at'], "YYYY-MM-DD, hh:mm aa");
+            return date.utc().format("YYYY-MM-DD hh:mm:ss Z");
+        },
         "Type":     function(pSource) { return pSource["side"].toUpperCase(); },
         "Exchange": function(pSource) { return "Coinbase Pro"; },
         "Base amount":   function(pSource) { return pSource["size"].replace(/,/g, ''); },
@@ -840,29 +797,6 @@ var exchangeMapping = {
         "Notes":                   function(pSource) { return ""; }
     },
 
-    // 'CoinTracking': {
-    //     "_KnownCSVColumns": function(pSource)  { return "Amount,Currency,Date Acquired,Date Sold,Short/Long,Buy /Input at,Sell /Output at,Proceeds in AUD,Cost Basis in AUD,Gain/Loss in AUD".split(","); },
-    //
-    //     "Date":     function(pSource) { return pSource["Time"]; },
-    //     "Type":     function(pSource) { return pSource["Sell/Buy"].toUpperCase(); },
-    //     "Exchange": function(pSource) { return "CoinTracking"; },
-    //     "Base amount":   function(pSource) { return pSource["Amount"]; },
-    //     "Base currency": function(pSource) { return pSource["Amount-Coin"]; },
-    //
-    //     "Quote amount":     function(pSource) { return pSource['Filled Price']; },
-    //     "Quote currency":   function(pSource) { return pSource['Price-Coin']; },
-    //
-    //     "Fee":              function(pSource) { return pSource['Fee']; },
-    //     "Fee currency":     function(pSource) { return pSource['Fee-Coin']; },
-    //
-    //     "Costs/Proceeds":          function(pSource) { return ""; },
-    //     "Costs/Proceeds currency": function(pSource) { return ""; },
-    //     "Sync Holdings":           function(pSource) { return ""; },
-    //     "Sent/Received from":      function(pSource) { return ""; },
-    //     "Sent to":                 function(pSource) { return ""; },
-    //     "Notes":                   function(pSource) { return ""; }
-    // },
-
     'CoinJar': {
         "_KnownCSVColumns": function(pSource)  { return "Uuid,Transacted at,Account,Amount formatted,Amount currency,Amount decimal,Description,Pending,Destination amount,Quote,Fees".split(","); },
 
@@ -874,79 +808,25 @@ var exchangeMapping = {
             },
         "Type":     function(pSource) {
             var amount = pSource['Amount decimal'];
-            // var quote = pSource['Quote'];
-            // var currency = pSource['Amount currency'];
             if(amount > 0){
                 return 'DEPOSIT';
             }else{
                 return 'WITHDRAW';
             }
-            // if(currency == 'AUD' || currency == 'USD' || currency == 'GBP' || currency == 'EUR'){
-            //     if(amount > 0){
-            //         if(quote)
-            //             return 'SELL';
-            //         else
-            //             return 'DEPOSIT';
-            //     }else{
-            //         if(quote)
-            //             return 'BUY';
-            //         else
-            //             return 'WITHDRAW';
-            //     }
-            // }else{
-            //     if(amount > 0){
-            //         if(quote)
-            //             return 'BUY';
-            //         else
-            //             return 'DEPOSIT';
-            //     }else{
-            //         if(quote)
-            //             return 'SELL';
-            //         else
-            //             return 'WITHDRAW';
-            //     }
-            // }
-            // return '';
+
         },
         "Exchange": function(pSource) { return "CoinJar"; },
         "Base amount":   function(pSource) {
-            // var quote = pSource['Quote'];
-            // if(quote){
-            //     var amount = pSource['Destination amount'].split(' ').splice(2);
-            //     return amount[0].replace(/[^0-9.-]/g, '').replace(/(\..*)\./g, '$1').replace(/(?!^)-/g, '');
-            // }else{
-            //     return Math.abs(pSource['Amount decimal']);
-            // }
             return Math.abs(pSource['Amount decimal'].replace(/,/g, ''));
-
         },
         "Base currency": function(pSource) {
-            // var quote = pSource['Quote'];
-            // if(quote){
-            //     var currency = (quote.split(' ').splice(0,1))[0].slice(0,3);
-            //     return currency;
-            // }else{
-            //     return pSource["Amount currency"];
-            // }
             return pSource["Amount currency"];
         },
 
         "Quote amount":     function(pSource) {
-            // var quote = pSource['Quote'];
-            // if(quote){
-            //     return Math.abs(pSource['Amount decimal']);
-            // }else{
-            //     return '';
-            // }
             return '';
         },
         "Quote currency":   function(pSource) {
-            // var quote = pSource['Quote'];
-            // if(quote){
-            //    return pSource["Amount currency"];
-            // }else{
-            //     return ''
-            // }
             return '';
         },
 
@@ -1122,7 +1002,6 @@ var exchangeMapping = {
                 temp = moment('01/01/2018', "DD/MM/YYYY hh:mm:ss");
                 date = temp.utc().format("YYYY-MM-DD hh:mm:ss Z");
             }
-            console.log('date:',date);
 
             return date;
         },
@@ -1596,6 +1475,144 @@ var exchangeMapping = {
             },
         "Notes":                   function(pSource) { return '';}
     },
+
+    'BTCMarkets': {
+        "_KnownCSVColumns": function(pSource)  { return "transactionId,creationTime,recordType,action,currency,amount,description,balance,referenceId".split(","); },
+
+        "Date":     function(pSource) {
+            date = moment(pSource['creationTime'], "YYYY-MM-DD, hh:mm aa");
+            return date.utc().format("YYYY-MM-DD hh:mm:ss Z");
+        },
+        "Type":     function(pSource) {
+            var type = pSource['action'];
+            switch(type){
+                case 'Deposit':
+                    return 'DEPOSIT';
+                case 'Withdraw':
+                    return 'WITHDRAW';
+                case 'Buy Order':
+                    return 'BUY';
+                case 'Sell Order':
+                    return 'SELL';
+                case 'Trading Fee':
+                    return 'BUY';
+                default:
+                    return '';
+            }
+        },
+        "Exchange": function(pSource) { return 'BTCMarkets'; },
+        "Base amount":   function(pSource) {
+            var description = pSource['description'];
+            var type = pSource['action'];
+
+            function filterAmount(n){
+                var temp = description.split(' ')[n]; // 1, 4
+                return Number(temp.replace(/[^0-9\.]+|,/g,"").replace(/,/g, ''));
+            }
+
+            var amount = Math.abs(pSource["amount"].toString().replace(/,/g, ''));
+            switch(type){
+                case 'Deposit':
+                    return amount;
+                case 'Withdraw':
+                    return amount;
+                default:
+                    return filterAmount(1);
+            }
+           },
+        "Base currency": function(pSource) {
+            var description = pSource['description'];
+            var type = pSource['action'];
+            var currency = pSource['currency'];
+            function filterCur(){
+                var temp = description.split(' ')[1];
+                return temp.replace(/[^a-zA-Z ]/g, "");
+            }
+            switch(type){
+                case 'Deposit':
+                    return currency;
+                case 'Withdraw':
+                    return currency;
+                default:
+                    return filterCur();
+            }
+        },
+
+        "Quote amount":     function(pSource) {
+            var description = pSource['description'];
+            var type = pSource['action'];
+
+            function filterAmount(){
+                var temp = description.split(' ')[4]; // 1, 4
+                return Number(temp.replace(/[^0-9\.]+|,/g,"").replace(/,/g, ''));
+            }
+            switch(type){
+                case 'Deposit':
+                    return '';
+                case 'Withdraw':
+                    return '';
+                default:
+                    return filterAmount();
+            }
+        },
+        "Quote currency":   function(pSource) {
+            var description = pSource['description'];
+            var type = pSource['action'];
+            function filterCur(){
+                var temp = description.split(' ')[3];
+                return temp.replace(/[^a-zA-Z ]/g, "");
+            }
+            switch(type){
+                case 'Deposit':
+                    return '';
+                case 'Withdraw':
+                    return '';
+                default:
+                    return filterCur();
+            }
+        },
+        "Fee":              function(pSource) { return ''; },
+        "Fee currency":     function(pSource) { return ''; },
+
+        "Costs/Proceeds":          function(pSource) { return ""; },
+        "Costs/Proceeds currency": function(pSource) { return ""; },
+        "Sync Holdings":           function(pSource) {
+            var type = pSource['action'];
+            switch(type){
+                case 'Buy Order':
+                    return '1';
+                case 'Sell Order':
+                    return '1';
+                case 'Trading Fee':
+                    return '1';
+                default:
+                    return '';
+            }
+        },
+        "Sent/Received from":      function(pSource) {
+            var type = pSource['action'];
+            switch(type){
+                case 'Deposit':
+                    return 'Other_Wallet';
+                case 'Withdraw':
+                    return 'My_Wallet';
+                default:
+                    return '';
+            }
+        },
+        "Sent to":                 function(pSource) {
+            var type = pSource['action'];
+            switch(type){
+                case 'Deposit':
+                    return 'My_Wallet';
+                case 'Withdraw':
+                    return 'Other_Wallet';
+                default:
+                    return '';
+            }
+        },
+        "Notes":                   function(pSource) { return pSource['description'].replace(/\r?\n|\r|,/g, ' '); }
+    }
 
 
 

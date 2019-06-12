@@ -26,9 +26,20 @@ var exchangeData = {};
 
         // Attempt to detect the exchange
         detect : function ( pContent ) {
+            var temp = pContent.split('\n');
+            var tempTitle1 = temp[0].split(',');
+            var tempTitle2 = [];
+            tempTitle1.map(item=> {
+                tempTitle2.push(item.trim());
+            });
+            temp[0] = tempTitle2;
+            pContent = temp.join('\n');
+
+
             var csvdata = $.csv.toObjects(pContent);
             // for Coinbase
             var csvdata_Coinbase = $.csv.toObjects(pContent);
+
 
             if(csvdata.length > 3){
                 var pContent_Coinbase = ((pContent.split('\n')).splice(3)).join('\n');
@@ -75,6 +86,15 @@ var exchangeData = {};
         },
 
         convert: function (pContent, pExchange) {
+            var temp = pContent.split('\n');
+            var tempTitle1 = temp[0].split(',');
+            var tempTitle2 = [];
+            tempTitle1.map(item=> {
+                tempTitle2.push(item.trim());
+            });
+            temp[0] = tempTitle2;
+            pContent = temp.join('\n');
+
             var exchange = exchangeMapping[pExchange];
 
             if (typeof exchange['_RenameCSVColumns'] !== "undefined") {
