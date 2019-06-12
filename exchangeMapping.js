@@ -1053,7 +1053,6 @@ var exchangeMapping = {
         }
     },
 
-
     'CoinTracking_closeing_Position': {
         "_KnownCSVColumns": function(pSource)  { return "Amount Remaining Assets,Currency Asset Currency,Date Acquired Asset Purchase Date,Buy/Input at Place of input,Purchase Price in AUD Per Asset,Year End Price in AUDPer Asset on 31.12.2017,Cost Basis in AUD Total Purchase Value,Year End Value in AUD Total Year End Value,Gain/Loss in AUD Total Year End Gain/Loss,".split(","); },
 
@@ -1085,7 +1084,6 @@ var exchangeMapping = {
             return notes.replace(/\r?\n|\r|,/g, ' ');
         }
     },
-
 
     'Kraken': {
         "_KnownCSVColumns": function(pSource)  { return "txid,ordertxid,pair,time,type,ordertype,price,cost,fee,vol,margin,misc,ledgers".split(","); },
@@ -1125,6 +1123,7 @@ var exchangeMapping = {
         "Sent to":                 function(pSource) { return '';},
         "Notes":                   function(pSource) { return '';}
     },
+
     'Kraken_legers': {
         "_KnownCSVColumns": function(pSource)  { return "txid,refid,time,type,aclass,asset,amount,fee,balance".split(","); },
 
@@ -1206,7 +1205,88 @@ var exchangeMapping = {
         "Notes":                   function(pSource) {
            return '';
         }
-    }
+    },
+
+    'IDEX': {
+        "_KnownCSVColumns": function(pSource)  { return "transactionId,transactionHash,date,market,makerOrTaker,buyOrSell,tokenAmount,etherAmount,usdValue,fee,gasFee,feesPaidIn".split(","); },
+
+        "Date":     function(pSource) {
+            var temp = moment(pSource['date'], "DD/MM/YYYY hh:mm");
+            var date = temp.utc().format("YYYY-MM-DD hh:mm:ss Z");
+
+            return date;
+        },
+        "Type":     function(pSource) {
+            return pSource['buyOrSell'].toUpperCase();
+        },
+        "Exchange": function(pSource) {
+            return 'IDEX';
+            // return pSource['Buy/Input at Place of input'].split(' ')[0];
+        },
+        "Base amount":   function(pSource) { return pSource["tokenAmount"].replace(/,/g, ''); },
+        "Base currency": function(pSource) { return pSource['market'].split('/')[0]; },
+
+        "Quote amount":     function(pSource) { return pSource['etherAmount'].replace(/,/g, ''); },
+        "Quote currency":   function(pSource) { return pSource['market'].split('/')[1]; },
+
+        "Fee":              function(pSource) { return pSource["fee"].replace(/,/g, ''); },
+        "Fee currency":     function(pSource) { return pSource['feesPaidIn']; },
+
+        "Costs/Proceeds":          function(pSource) { return '' },
+        "Costs/Proceeds currency": function(pSource) { return ''; },
+        "Sync Holdings":           function(pSource) {
+            if(pSource['buyOrSell'].toUpperCase() == 'BUY' || pSource['buyOrSell'].toUpperCase() == 'SELL')
+                return '1'
+            else
+                return ''
+        },
+        "Sent/Received from":      function(pSource) { return ''; },
+        "Sent to":                 function(pSource) { return '';},
+        "Notes":                   function(pSource) { return '';}
+    },
+
+    'Houbi': {
+        "_KnownCSVColumns": function(pSource)  { return "uid,f_symbol,deal_time,deal_type,f_price,f_filled_amount,f_filled_cash_amount,fees".split(","); },
+
+        "Date":     function(pSource) {
+            var temp = moment(pSource['deal_time'], "DD/MM/YYYY hh:mm");
+            var date = temp.utc().format("YYYY-MM-DD hh:mm:ss Z");
+
+            return date;
+        },
+        "Type":     function(pSource) {
+            return pSource['deal_type'].toUpperCase();
+        },
+        "Exchange": function(pSource) {
+            return '';
+            // return pSource['Buy/Input at Place of input'].split(' ')[0];
+        },
+        "Base amount":   function(pSource) { return pSource["f_filled_amount"].replace(/,/g, ''); },
+        "Base currency": function(pSource) {
+            return pSource['f_symbol'].slice(-pSource['f_symbol'].length, -3).toUpperCase();
+         },
+
+        "Quote amount":     function(pSource) { return pSource['f_filled_cash_amount'].replace(/,/g, ''); },
+        "Quote currency":   function(pSource) { return pSource['f_symbol'].slice(-3).toUpperCase(); },
+
+        "Fee":              function(pSource) { return pSource["fees"].replace(/,/g, ''); },
+        "Fee currency":     function(pSource) {
+            return pSource['f_symbol'].slice(-pSource['f_symbol'].length, -3).toUpperCase();
+        },
+
+        "Costs/Proceeds":          function(pSource) { return '' },
+        "Costs/Proceeds currency": function(pSource) { return ''; },
+        "Sync Holdings":           function(pSource) {
+            if(pSource['deal_type'] == 'buy' || pSource['deal_type'] == 'sell')
+                return '1'
+            else
+                return ''
+         },
+        "Sent/Received from":      function(pSource) { return ''; },
+        "Sent to":                 function(pSource) { return '';},
+        "Notes":                   function(pSource) { return '';}
+    },
+
 
 
 };
