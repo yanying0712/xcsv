@@ -29,8 +29,34 @@ var exchangeMapping = {
         "Costs/Proceeds":          function(pSource) { return ""; },
         "Costs/Proceeds currency": function(pSource) { return ""; },
         "Sync Holdings":           function(pSource) { return ""; },
-        "Sent/Received from":      function(pSource) { return ""; },
-        "Sent to":                 function(pSource) { if(pSource['Type'] == "Sub Account Transfer") return pSource["Account"]; },
+        "Sent/Received from":      function(pSource) {
+            switch(pSource['Type']) {
+                case "Deposit":
+                    return "Other_Wallet";
+                case "Market":
+                    return '';
+                case "Sub Account Transfer":
+                    return pSource["Account"];
+                case "Withdrawal":
+                    return "My_Wallet";
+                case "Card Deposit":
+                    return "Other_Wallet";
+            }
+        },
+        "Sent to":                 function(pSource) {
+            switch(pSource['Type']) {
+                case "Deposit":
+                    return "My_Wallet";
+                case "Market":
+                    return '';
+                case "Sub Account Transfer":
+                    return 'My_Wallet';
+                case "Withdrawal":
+                    return "Other_Wallet";
+                case "Card Deposit":
+                    return "My_Wallet";
+            }
+        },
         "Notes":                   function(pSource) { return ""; }
     },
 

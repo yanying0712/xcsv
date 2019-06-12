@@ -120,7 +120,8 @@ var exchangeData = {};
                     if(!((result[5] == 0 && result[6]) || result[4] == 'STR'))
                         if(result[0] !== 'Invalid date')
                             if(result[4].length <= 5)
-                                results.push(result.join(","));
+                                if(result[5] !== 'Addition')
+                                    results.push(result.join(","));
 
             }
             return results.join('\n');
