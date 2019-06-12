@@ -116,9 +116,12 @@ var exchangeData = {};
                     }
                 }
             // it will be not pushed if the "Base Amount" and "Quote Amount" of result equal "0";
-                if(!(result[3] === 0))
+                if(!(result[3] == 0))
                     if(!((result[5] == 0 && result[6]) || result[4] == 'STR'))
-                        results.push(result.join(","));
+                        if(result[0] !== 'Invalid date')
+                            if(result[4].length <= 5)
+                                results.push(result.join(","));
+
             }
             return results.join('\n');
         }

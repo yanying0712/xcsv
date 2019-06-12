@@ -744,7 +744,7 @@ var exchangeMapping = {
                 case 'From wallet':
                     return '';
                 default:
-                    return quote.replace(/,/g, '');
+                    return quote;
             }
         },
         "Quote currency":   function(pSource) {
@@ -993,7 +993,7 @@ var exchangeMapping = {
         "_KnownCSVColumns": function(pSource)  { return "Amount,Currency,Date Acquired,Date Sold,Short/Long,Buy /Input at,Sell /Output at,Proceeds in AUD,Cost Basis in AUD,Gain/Loss in AUD".split(","); },
 
         "Date":     function(pSource) {
-            date = moment(pSource['Date Sold'], "DD.MM.YYYY");
+            date = moment(pSource['Date Acquired'], "DD/MM/YYYY hh:mm:ss");
             return date.utc().format("YYYY-MM-DD hh:mm:ss Z");
         },
         "Type":     function(pSource) {
@@ -1287,6 +1287,209 @@ var exchangeMapping = {
         "Notes":                   function(pSource) { return '';}
     },
 
+    // 'Stocks.exchange': {
+    //     "_KnownCSVColumns": function(pSource)  { return "Date,Buy,Buy amount,Price,Sell,Sell Amount,Document,Operation,Fee,Fee Asset".split(","); },
+    //
+    //     "Date":     function(pSource) {
+    //         var temp = moment(pSource['deal_time'], "YYYY-MM-DD hh:mm:ss");
+    //         var date = temp.utc().format("YYYY-MM-DD hh:mm:ss Z");
+    //         return date;
+    //     },
+    //     "Type":     function(pSource) {
+    //         return pSource['deal_type'].toUpperCase();
+    //     },
+    //     "Exchange": function(pSource) {
+    //         return 'Stocks.exchange';
+    //     },
+    //     "Base amount":   function(pSource) { return pSource["f_filled_amount"].replace(/,/g, ''); },
+    //     "Base currency": function(pSource) {
+    //         return pSource['f_symbol'].slice(-pSource['f_symbol'].length, -3).toUpperCase();
+    //     },
+    //
+    //     "Quote amount":     function(pSource) { return pSource['f_filled_cash_amount'].replace(/,/g, ''); },
+    //     "Quote currency":   function(pSource) { return pSource['f_symbol'].slice(-3).toUpperCase(); },
+    //
+    //     "Fee":              function(pSource) { return pSource["fees"].replace(/,/g, ''); },
+    //     "Fee currency":     function(pSource) {
+    //         return pSource['f_symbol'].slice(-pSource['f_symbol'].length, -3).toUpperCase();
+    //     },
+    //
+    //     "Costs/Proceeds":          function(pSource) { return '' },
+    //     "Costs/Proceeds currency": function(pSource) { return ''; },
+    //     "Sync Holdings":           function(pSource) {
+    //         if(pSource['deal_type'] == 'buy' || pSource['deal_type'] == 'sell')
+    //             return '1'
+    //         else
+    //             return ''
+    //     },
+    //     "Sent/Received from":      function(pSource) { return ''; },
+    //     "Sent to":                 function(pSource) { return '';},
+    //     "Notes":                   function(pSource) { return '';}
+    // },
+
+    'CoinTracker': {
+        "_KnownCSVColumns": function(pSource)  { return "Date,Type,Received Quantity,Received Currency,Received Currency Balance,Received Cost Basis (AUD),Received Wallet Type,Received Wallet,Received Tag,Received Comment,Sent Quantity,Sent Currency,Sent Currency Balance,Sent Cost Basis (AUD),Sent Wallet Type,Sent Wallet,Sent Tag,Sent Comment,Realized Return (AUD),Disabled".split(","); },
+
+        "Date":     function(pSource) {
+            var temp = moment(pSource['Date'], "MM/DD/YYYY hh:mm");
+            var date = temp.utc().format("YYYY-MM-DD hh:mm:ss Z");
+
+            return date;
+        },
+        "Type":     function(pSource) {
+           var type = pSource['Type'].toUpperCase();
+           switch(type){
+               case 'RECEIVE':
+                   return 'DEPOSIT';
+               case 'SEND':
+                   return 'WITHDRAW';
+               case 'TRADE':
+                   return 'BUY';
+               default:
+                   return type;
+           }
+
+        },
+        "Exchange": function(pSource) {
+            var type = pSource['Type'].toUpperCase();
+            var exchange_place = pSource['Received Wallet Type'];
+            switch(type){
+                case 'RECEIVE':
+                    return '';
+                case 'SEND':
+                    return '';
+                default:
+                    return exchange_place;
+            }
+        },
+        "Base amount":   function(pSource) {
+            var received = pSource['Received Quantity'].replace(/,/g, '');
+            var sent = pSource['Sent Quantity'].replace(/,/g, '');
+            var received_cur = pSource['Received Currency'];
+            var type = pSource['Type'].toUpperCase();
+            switch (type) {
+                case 'SEND':
+                    return sent;
+                case 'SELL':
+                    return sent;
+                case 'TRADE':
+                    if(received_cur === 'BTC' || received_cur === 'BNB' || received_cur === 'ETH')
+                        return sent;
+                    else
+                        return received;
+                default:
+                    return received;
+            }
+        },
+        "Base currency": function(pSource) {
+            var received_cur = pSource['Received Currency'];
+            var sent_cur = pSource['Sent Currency'];
+            var type = pSource['Type'].toUpperCase();
+            switch (type) {
+                case 'SEND':
+                    return sent_cur;
+                case 'SELL':
+                    return sent_cur;
+                case 'TRADE':
+                    if(received_cur === 'BTC'|| received_cur === 'BNB' || received_cur === 'ETH')
+                        return sent_cur;
+                    else
+                        return received_cur;
+                default:
+                    return received_cur;
+            }
+        },
+
+        "Quote amount":     function(pSource) {
+            var received = pSource['Received Quantity'].replace(/,/g, '');
+            var received_cur = pSource['Received Currency'];
+            var sent = pSource['Sent Quantity'].replace(/,/g, '');
+            var type = pSource['Type'].toUpperCase();
+            switch (type) {
+                case 'SEND':
+                    return '';
+                case 'SELL':
+                    return received;
+                case 'TRANSFER':
+                    return '';
+                case 'TRADE':
+                    if(received_cur === 'BTC'|| received_cur === 'BNB' || received_cur === 'ETH')
+                        return received;
+                    else
+                        return sent;
+                default:
+                    return sent;
+            }
+        },
+        "Quote currency":   function(pSource) {
+            var received_cur = pSource['Received Currency'];
+            var sent_cur = pSource['Sent Currency'];
+            var type = pSource['Type'].toUpperCase();
+            switch (type) {
+                case 'SEND':
+                    return '';
+                case 'SELL':
+                    return received_cur;
+                case 'TRANSFER':
+                    return '';
+                case 'TRADE':
+                    if(received_cur === 'BTC'|| received_cur === 'BNB' || received_cur === 'ETH')
+                        return received_cur;
+                    else
+                        return sent_cur;
+                default:
+                    return sent_cur;
+            }
+        },
+
+        "Fee":              function(pSource) { return ''; },
+        "Fee currency":     function(pSource) { return ''; },
+
+        "Costs/Proceeds":          function(pSource) { return '' },
+        "Costs/Proceeds currency": function(pSource) { return ''; },
+        "Sync Holdings":           function(pSource) {
+            var type = pSource['Type'].toUpperCase();
+            if(type === 'BUY' || type === 'SELL')
+                return '1'
+            else
+                return ''
+        },
+        "Sent/Received from":      function(pSource) {
+            var type = pSource['Type'].toUpperCase();
+            var received_type = pSource['Received Wallet Type'];
+            var sent_type = pSource['Sent Wallet Type'];
+
+            switch(type){
+                case 'SEND':
+                    return 'My_Wallet';
+                case 'RECEIVE':
+                    return 'Other_Wallet';
+                case 'TRANSFER':
+                    if(received_type == 'Local Wallet')
+                        return sent_type;
+                    else
+                        return received_type;
+                default:
+                    return '';
+            }
+        },
+        "Sent to":                 function(pSource) {
+            var type = pSource['Type'].toUpperCase();
+            var received_type = pSource['Received Wallet Type'];
+            var sent_type = pSource['Sent Wallet Type'];
+            switch(type){
+                case 'SEND':
+                    return 'Other_Wallet';
+                case 'RECEIVE':
+                    return 'My_Wallet';
+                case 'TRANSFER':
+                    return 'My_Wallet';
+                default:
+                    return '';
+            }
+            },
+        "Notes":                   function(pSource) { return '';}
+    },
 
 
 };
