@@ -153,7 +153,7 @@
         $('body').xcsv();
 
         for (var exchange in exchangeMapping){
-            if(!(exchange === 'Binance_Deposit_Widhdraw' || exchange == 'CoinTracking_closeing_Position' || exchange == 'Kraken_legers')){
+            if(!(exchange === 'Binance_Deposit_Widhdraw' || exchange == 'CoinTracking_closeing_Position' || exchange == 'Kraken_legers' || exchange == 'BTCMarkets_2')){
                 $('#id_SupportedExchangeList').append("<li>" + exchange + "</li>");
             }
         }
@@ -220,6 +220,8 @@
                             break;
                         case 'Kraken_legers':
                             $('#id_Detected').append("<li>Kraken</li>");
+                        case 'BTCMarkets_2':
+                            $('#id_Detected').append("<li>BTCMarkets</li>");
                             break;
                         default:
                             $('#id_Detected').append("<li>" + exchange + "</li>");

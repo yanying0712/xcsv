@@ -1612,7 +1612,45 @@ var exchangeMapping = {
             }
         },
         "Notes":                   function(pSource) { return pSource['description'].replace(/\r?\n|\r|,/g, ' '); }
-    }
+    },
+
+    "BTCMarkets_2": {
+        "_KnownCSVColumns": function(pSource)  { return "id,creationTime,price,volume,side,instrument,currency,market,fee(Inc tax),feeCurrency,feeInBaseCurrency(Inc tax),taxInBaseCurrency,orderId".split(","); },
+
+        "Date":     function(pSource) {
+            date = moment(pSource['creationTime'], "YYYY-MM-DD, hh:mm aa");
+            return date.utc().format("YYYY-MM-DD hh:mm:ss Z");
+        },
+        "Type":     function(pSource) {
+            var type = pSource['side'];
+            switch(type){
+                case 'Bid':
+                    return 'BUY';
+                case 'Ask':
+                    return 'BUY';
+                default:
+                    return 'SELL';
+            }
+        },
+        "Exchange": function(pSource) { return "BTCMarkets"; },
+        "Base amount":   function(pSource) { return pSource["price"].replace(/,/g, ''); },
+        "Base currency": function(pSource) { return pSource['instrument']; },
+
+        "Quote amount":     function(pSource) {
+            var quote = Math.abs(pSource['volume']*pSource['price']);
+            return  quote.toString().replace(/,/g, '');
+        },
+        "Quote currency":   function(pSource) { return pSource['currency']; },
+        "Fee":              function(pSource) { return pSource['fee(Inc tax)'].replace(/,/g, ''); },
+        "Fee currency":     function(pSource) { return pSource['feeCurrency']; },
+
+        "Costs/Proceeds":          function(pSource) { return ""; },
+        "Costs/Proceeds currency": function(pSource) { return ""; },
+        "Sync Holdings":           function(pSource) { return ""; },
+        "Sent/Received from":      function(pSource) { return ""; },
+        "Sent to":                 function(pSource) { return ""; },
+        "Notes":                   function(pSource) { return ""; }
+    },
 
 
 
