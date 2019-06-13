@@ -1646,7 +1646,7 @@ var exchangeMapping = {
 
         "Costs/Proceeds":          function(pSource) { return ""; },
         "Costs/Proceeds currency": function(pSource) { return ""; },
-        "Sync Holdings":           function(pSource) { return ""; },
+        "Sync Holdings":           function(pSource) { return "1"; },
         "Sent/Received from":      function(pSource) { return ""; },
         "Sent to":                 function(pSource) { return ""; },
         "Notes":                   function(pSource) { return ""; }
